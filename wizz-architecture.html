@@ -169,6 +169,7 @@
   <button class="tab-button" data-tab="tech">Tech Stack</button>
   <button class="tab-button" data-tab="plans">Plans</button>
   <button class="tab-button" data-tab="profit">Profit Margin</button>
+  <button class="tab-button" data-tab="pilot">Pilot Cost</button>
   <button class="tab-button" data-tab="aws">AWS Hosting Cost</button>
   <button class="tab-button" data-tab="market">Competitors</button>
   <button class="tab-button" data-tab="metrics">Verification Metrics</button>
@@ -1613,6 +1614,83 @@ load();
       <tr><td>10% Qwen image fallback</td><td class="num">+₹6.75</td><td class="num warn">49.9%–56.5%</td><td class="num">+₹13.49</td><td class="num bad">46.6%–50.4%</td></tr>
     </tbody></table></div>
     <div class="callout"><strong>Operating rule:</strong> alert when Qwen-Image exceeds 1% of monthly visual requests. A sustained 10% fallback rate breaks the 50% Pro margin floor in the high-infrastructure case.</div>
+  </div></section>
+
+  <section data-tab-panel="pilot"><div class="wrap">
+    <div class="band-label"><h2>Pilot investment breakdown — ₹0.86 Cr</h2><span class="sub">10 schools · 3,000 learners · Nov 2026 – Jul 2027</span></div>
+    <p class="lede">The pilot is spend only — it buys evidence, not revenue. Total exposure is ₹0.86 Cr (₹86 lakhs) covering discovery (Nov–Dec) and pilot (Apr–Jul). Engineering dominates at 63%; the 80% rules engine keeps AI variable costs to just 12% of the total.</p>
+
+    <div class="band-label" style="margin-top:28px"><h2>Cost breakdown</h2></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Component</th><th>Detail</th><th class="num">₹ Lakhs</th><th class="num">Share</th></tr></thead>
+      <tbody>
+        <tr><td>Engineering team</td><td>4 engineers × ₹1.5L/month × 9 months (Nov '26 – Jul '27)</td><td class="num">54.00</td><td class="num">63%</td></tr>
+        <tr><td>AI variable costs</td><td>3,000 users × ₹84.20/month × 4 months (Apr–Jul pilot)</td><td class="num">10.10</td><td class="num">12%</td></tr>
+        <tr><td>Pilot infrastructure</td><td>AWS at pilot scale — no shared-tenancy savings yet</td><td class="num">10.00</td><td class="num">12%</td></tr>
+        <tr><td>Curriculum loading &amp; onboarding</td><td>Per-school textbook digitisation, teacher training, setup</td><td class="num">7.90</td><td class="num">9%</td></tr>
+        <tr><td>Ops, travel &amp; contingency</td><td>School visits, hardware, buffer</td><td class="num">4.00</td><td class="num">5%</td></tr>
+        <tr class="total"><td>Total pilot investment</td><td>Discovery + pilot phases</td><td class="num good">86.00</td><td class="num good">100%</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout ok" style="margin-top:18px"><strong>Why AI costs are only 12%:</strong> the rules engine handles ~80% of student questions using lightweight NLP text-similarity on our own servers (not a paid API). Similarity ≥85% → answer from the curriculum DB at zero AI cost. Only the remaining ~20% reach DeepSeek. Per-user variable cost mid-point: ₹84.20/month (AI subtotal ₹69.75 + infrastructure ₹7.90–₹21.00 from the Profit Margin tab).</div>
+
+    <div class="band-label" style="margin-top:28px"><h2>Per-user cost bridge (from Profit Margin tab)</h2></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Cost line</th><th class="num">₹/user/month (Starter)</th></tr></thead>
+      <tbody>
+        <tr><td>Realtime ingestion (Gemini)</td><td class="num">₹16.38</td></tr>
+        <tr><td>Batch ingestion (Gemini)</td><td class="num">₹8.19</td></tr>
+        <tr><td>Text generation (DeepSeek V4 Flash)</td><td class="num">₹14.00</td></tr>
+        <tr><td>Visual generation (GPT Image 2 Low)</td><td class="num">₹28.90</td></tr>
+        <tr><td>Total verification (Qwen 3.6 Flash)</td><td class="num">₹2.16</td></tr>
+        <tr><td>Task routing (Jev)</td><td class="num">₹0.12</td></tr>
+        <tr class="total"><td>AI subtotal</td><td class="num good">₹69.75</td></tr>
+        <tr><td>Infrastructure (AWS)</td><td class="num">₹7.90–₹21.00</td></tr>
+        <tr class="total"><td>Total modeled cost</td><td class="num good">₹77.65–₹90.75</td></tr>
+        <tr class="total"><td>Mid-point (used for pilot calc)</td><td class="num good">₹84.20</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="band-label" style="margin-top:28px"><h2>ROI scenarios — full 3-year plan</h2><span class="sub">ROI = surplus ÷ expense · payback = months to repay spend</span></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Scenario</th><th>Price</th><th>Scale</th><th class="num">Surplus</th><th class="num">ROI</th><th class="num">Payback</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Downside: price halved</strong></td><td>₹75/student-month</td><td>~25 schools</td><td class="num">₹0.60 Cr</td><td class="num warn">5.6%</td><td class="num">~32 months</td></tr>
+        <tr><td><strong>Conservative adoption</strong></td><td>₹100 (LOI bar)</td><td>Half the schools sign up</td><td class="num">₹2.5 Cr</td><td class="num good">28.8%</td><td class="num">~26 months</td></tr>
+        <tr><td><strong>Base: full 3-year plan</strong></td><td>₹150 (plan price)</td><td>25 → 100 → 300 schools</td><td class="num">₹11.85 Cr</td><td class="num good">111%</td><td class="num">~13 months</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="band-label" style="margin-top:28px"><h2>Price sensitivity</h2><span class="sub">revenue = schools × 300 × price × 12</span></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Price per student-month</th><th class="num">ROI</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>₹60 (below break-even)</td><td class="num bad">−15.5%</td><td>Reject → teacher copilot</td></tr>
+        <tr><td>₹71 (break-even)</td><td class="num">0.0%</td><td>Break-even line only</td></tr>
+        <tr><td>₹75</td><td class="num warn">5.6%</td><td>Pause and fix pricing</td></tr>
+        <tr><td>₹100 (letter-of-intent bar)</td><td class="num good">40.8%</td><td>Continue; bundle with proven uplift</td></tr>
+        <tr><td>₹150 (plan price)</td><td class="num good">111%</td><td>Scale case</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="band-label" style="margin-top:28px"><h2>Value realisation targets</h2><span class="sub">metric · target</span></div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Category</th><th>Metric</th><th class="num">Target</th></tr></thead>
+      <tbody>
+        <tr><td><span class="role-chip" style="background:#c0392b22;color:#c0392b">Business</span></td><td>Test scores vs matched classes</td><td class="num good">≥15%</td></tr>
+        <tr><td><span class="role-chip" style="background:#c0392b22;color:#c0392b">Business</span></td><td>Pilot schools paying ≥₹100</td><td class="num good">≥5 of 10</td></tr>
+        <tr><td><span class="role-chip" style="background:#0d948822;color:#0d9488">Operational</span></td><td>Answers within 4 seconds</td><td class="num good">95 of 100</td></tr>
+        <tr><td><span class="role-chip" style="background:#0d948822;color:#0d9488">Operational</span></td><td>Answers sent to a human</td><td class="num good">≤2% → ≤0.7%</td></tr>
+        <tr><td><span class="role-chip" style="background:#0d948822;color:#0d9488">Operational</span></td><td>Teachers active every week</td><td class="num good">≥60%</td></tr>
+        <tr><td><span class="role-chip" style="background:#b8860b22;color:#b8860b">Financial</span></td><td>Cost per useful answer</td><td class="num good">₹0.75 (cap ₹1)</td></tr>
+        <tr><td><span class="role-chip" style="background:#b8860b22;color:#b8860b">Financial</span></td><td>Running cost / student-month</td><td class="num good">₹20 (pause ₹110)</td></tr>
+        <tr><td><span class="role-chip" style="background:#b8860b22;color:#b8860b">Financial</span></td><td>Expert review vs AI cost</td><td class="num good">₹12 vs ₹6</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout" style="margin-top:18px"><strong>Design principle:</strong> ₹0.86 Cr is the cheapest failure we could design. If H1 fails or the cost test fails, we stop at six weeks. The pilot buys evidence — price decides scale.</div>
+
   </div></section>
 
   <section data-tab-panel="aws"><div class="wrap">
