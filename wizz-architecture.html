@@ -1,0 +1,1695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wizz Learning Architecture</title>
+<style>
+  :root{
+    --navy:#07111f; --panel:#0d1b2e; --panel2:#10233b; --line:#243a58;
+    --ink:#eef4ff; --muted:#9fb0ca; --dim:#6f83a3;
+    --blue:#55a6ff; --cyan:#54e3d1; --green:#54dfa1; --amber:#ffc967; --rose:#ff7d9c; --violet:#b79cff; --steel:#8fa4c9;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+    radial-gradient(ellipse 900px 500px at 82% -8%,#173a63 0,transparent 55%),
+    radial-gradient(ellipse 700px 400px at -5% 10%,#0f3d3a 0,transparent 50%),
+    var(--navy);
+    color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+  .wrap{width:min(1680px,calc(100% - 40px));margin:auto}
+  a{color:var(--blue);text-decoration-color:currentColor;text-underline-offset:2px}
+  a:hover{color:var(--cyan)}
+  ::selection{background:#1c3a5e}
+  @media (prefers-reduced-motion: no-preference){
+    .card,.tab-button,a,.pill,tr{transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease}
+  }
+
+  nav.tabs{position:sticky;top:0;z-index:5;background:#07111feF;border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}
+  nav.tabs .wrap{display:flex;gap:4px;padding:10px 0;overflow-x:auto}
+  .tab-button{position:relative;white-space:nowrap;padding:10px 17px;border:1px solid transparent;border-radius:9px;color:#c9d7ea;background:transparent;font:700 13.5px var(--sans);cursor:pointer}
+  .tab-button:hover{background:#15294388;color:#fff}
+  .tab-button.active{color:var(--navy);background:var(--cyan);border-color:var(--cyan);box-shadow:0 2px 14px -2px #54e3d166}
+  [data-tab-panel]{display:none}
+  [data-tab-panel].active{display:block;animation:fadein .32s ease both}
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  }
+
+  header.hero{padding:64px 0 36px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--cyan);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px 2px #54e3d199}
+  h1{font-size:clamp(32px,4.8vw,54px);line-height:1.04;margin:14px 0 16px;text-wrap:balance;letter-spacing:-0.015em;font-weight:800;
+     background:linear-gradient(100deg,#ffffff 20%,#bfe9ff 55%,var(--cyan) 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede{max-width:820px;color:var(--muted);font-size:16.5px}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);padding:6px 12px 6px 8px;border:1px solid var(--line);border-radius:999px;background:#0d1e34aa}
+  .swatch{width:22px;height:14px;border-radius:4px;border:1.5px solid var(--blue);background:linear-gradient(150deg,#173a63,#0a1627)}
+  .swatch.boundary{width:22px;height:14px;border-width:2px;border-style:dashed;border-color:var(--ink);background:transparent;border-radius:5px}
+
+  section{padding:34px 0;border-bottom:1px solid #16273f}
+  .band-label{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+  .band-label .idx{font:700 12px var(--mono);color:var(--navy);background:var(--cyan);padding:3px 8px;border-radius:5px;letter-spacing:.04em;box-shadow:0 0 12px -1px #54e3d155}
+  .band-label h2{font-size:19px;margin:0;letter-spacing:-0.005em;font-weight:800}
+  .band-label .sub{color:var(--dim);font-size:12.5px}
+
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+  .card{grid-column:span 3;background:linear-gradient(150deg,#10233b,#0a1627);border:1px solid var(--line);border-radius:12px;padding:16px 17px}
+  .card:hover{border-color:#3a5a86;transform:translateY(-2px);box-shadow:0 10px 24px -10px #04101f99}
+  .card h3{margin:0 0 6px;font-size:14px;color:var(--ink)}
+  .card p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .card .cost{display:inline-block;margin-top:9px;font:700 12px var(--mono);color:var(--cyan)}
+
+  .transport{margin:26px 0;text-align:center;padding:11px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font:700 12.5px var(--mono);letter-spacing:.03em}
+
+  .boundary{border:2px solid var(--line);border-radius:18px;padding:22px;background:#0a1627}
+  .pipe-stack{display:flex;flex-direction:column;gap:20px}
+  .pipe{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .pipe h4{margin:0 0 3px;font-size:13px;color:var(--ink)}
+  .pipe .pipe-sub{color:var(--dim);font-size:11px;margin:0 0 12px}
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .steps li{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--muted)}
+  .steps .n{flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:#152943;border:1px solid var(--line);color:var(--cyan);font:700 10.5px var(--mono);display:flex;align-items:center;justify-content:center}
+  .modelbox{margin-top:12px;background:#0d2038;border:1px solid #2d4c71;border-radius:10px;padding:12px 13px}
+  .modelbox .tag{display:inline-block;font:700 9.5px var(--mono);letter-spacing:.05em;color:var(--cyan);text-transform:uppercase;margin-bottom:4px}
+  .modelbox strong{display:block;font-size:13px;color:var(--ink);margin-bottom:4px}
+  .modelbox p{margin:0;color:var(--muted);font-size:11.5px}
+  .modelbox .price{display:block;margin-top:6px;font:700 12px var(--mono);color:var(--green)}
+  .footnote{margin-top:12px;font-size:11px;color:var(--dim);font-family:var(--mono)}
+
+  .diagram-wrap{overflow-x:auto}
+  svg.flowdiag{display:block;width:100%;min-width:1180px;height:auto}
+  .diagfig{margin:0}
+  figcaption{margin-top:10px;color:var(--dim);font-size:12px}
+
+  .auditbox{margin-top:18px;background:#0d1e34;border:1px solid #2d4c71;border-radius:12px;padding:16px 18px;display:flex;gap:24px;flex-wrap:wrap}
+  .auditbox h4{margin:0 0 4px;font-size:13px;color:var(--ink)}
+  .auditbox p{margin:0;color:var(--muted);font-size:12px}
+
+  table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:12px 14px;border-bottom:1px solid #1c304a;vertical-align:top;text-align:left;font-size:13px}
+  th{background:#132844;color:#cfe5ff;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:0}
+  tbody tr:hover td{background:#102338}
+  td.cost{font-family:var(--mono);color:var(--cyan);white-space:nowrap;font-weight:700}
+  .role-chip{display:inline-block;font:700 10px var(--mono);letter-spacing:.03em;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-bottom:4px}
+  .rc-embed{background:#12324a;color:var(--cyan)} .rc-fallback{background:#3a2f12;color:var(--amber)}
+  .rc-gen{background:#12324a;color:var(--blue)} .rc-judge{background:#123a2c;color:var(--green)}
+  .rc-img{background:#2e1f42;color:var(--violet)} .rc-imgfb{background:#3a1620;color:var(--rose)}
+  .rc-tts{background:#132844;color:var(--muted)}
+
+  .flow{display:grid;grid-template-columns:repeat(11,1fr);gap:8px;align-items:stretch}
+  .node{position:relative;padding:14px 10px;background:var(--panel2);border:1px solid #2d4c71;border-radius:11px;text-align:center}
+  .node:not(:last-child):after{content:"→";position:absolute;right:-11px;top:36%;color:var(--cyan);font-weight:900;font-size:16px;z-index:1}
+  .node strong{display:block;color:#fff;font-size:12px;margin-bottom:3px}
+  .node small{color:var(--dim);font-size:10.5px}
+  @media(max-width:1100px){.flow{grid-template-columns:1fr 1fr 1fr}.node:not(:last-child):after{content:"↓";right:auto;left:50%;top:auto;bottom:-13px}}
+
+  .pillrow{display:flex;gap:9px;flex-wrap:wrap}
+  .pill{padding:7px 13px;border:1px solid #315071;border-radius:999px;color:var(--muted);font-size:12.5px;background:var(--panel2)}
+  .pill:hover{border-color:var(--cyan);color:var(--ink)}
+
+  footer{padding:30px 0 60px;color:var(--dim);font-size:12.5px}
+  footer a{color:#8bc4ff}
+
+  .card.wide{grid-column:span 6}
+  .card.full{grid-column:1/-1}
+  .tag{display:inline-block;padding:4px 9px;border-radius:999px;background:#162e4d;color:#acd5ff;font-weight:800;font-size:12px}
+  .metric{font-size:34px;line-height:1.05;font-weight:900;margin:12px 0 4px}
+  .quota{padding-left:18px;color:#c7d5e7;margin:0}
+  .quota li{margin:5px 0}
+  .muted{color:var(--muted)}
+  .plan-card{border-top:4px solid var(--blue)}
+  .plan-card.pro{border-top-color:var(--violet)}
+  .num{text-align:right;white-space:nowrap}
+  .good{color:var(--green);font-weight:800}
+  .warn{color:var(--amber);font-weight:800}
+  .bad{color:var(--rose);font-weight:800}
+  tr.total td{background:#102941;font-weight:900}
+  .callout{border-left:4px solid var(--amber);background:#231d14;padding:16px 18px;border-radius:0 12px 12px 0;color:#f3dbac;margin:20px 0}
+  .callout.ok{border-color:var(--green);background:#10261f;color:#baf6d9}
+  .formula{font-family:var(--mono);background:#081321;border:1px solid #223957;border-radius:10px;padding:12px;overflow:auto;color:#b9d8ff;white-space:pre-line}
+  .table-scroll{overflow-x:auto}
+  tr.blk-embed td:first-child{border-left:3px solid var(--cyan)}
+  tr.blk-gen td:first-child{border-left:3px solid var(--blue)}
+  tr.blk-judge td:first-child{border-left:3px solid var(--green)}
+  tr.blk-infra td:first-child{border-left:3px solid var(--steel)}
+  tr.blk-totalcost td:first-child{border-left:3px solid var(--amber)}
+  tr.blk-profit td:first-child{border-left:3px solid var(--violet)}
+  tr.blk-margin td:first-child{border-left:3px solid var(--rose)}
+  .blk-key{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 4px;font-size:12.5px;color:var(--muted)}
+  .blk-key span{display:inline-flex;align-items:center;gap:6px}
+  .blk-key i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+  @media(max-width:1100px){.card{grid-column:span 6}}
+  @media(max-width:640px){.card{grid-column:1/-1}.card.wide{grid-column:1/-1}}
+
+  .arch-image-card{background:#f7f9fc;border:1px solid #315071;border-radius:14px;padding:14px;box-shadow:0 10px 28px -18px #000;}
+  .arch-image-card img{display:block;width:100%;height:auto;border-radius:8px;}
+  .arch-image-card figcaption{margin:10px 4px 0;color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">System architecture · recreated as HTML infographic</div>
+  <h1>Wizz Learning — Detailed Technical Architecture</h1>
+  <p class="lede">Every request path, model role, decision branch and fallback in the governed AI stack, plus the tech stack, plans, unit economics, AWS hosting cost and competitor position in one document.</p>
+  <div class="legend">
+    <div class="legend-item"><span class="swatch"></span> Component</div>
+    <div class="legend-item"><span class="swatch boundary"></span> Trust boundary</div>
+  </div>
+</div></header>
+
+<nav class="tabs" aria-label="Document tabs"><div class="wrap">
+  <button class="tab-button active" data-tab="architecture">Architecture</button>
+  <button class="tab-button" data-tab="groundedness">Groundedness check</button>
+  <button class="tab-button" data-tab="defense">Why 80% rules</button>
+  <button class="tab-button" data-tab="tech">Tech Stack</button>
+  <button class="tab-button" data-tab="plans">Plans</button>
+  <button class="tab-button" data-tab="profit">Profit Margin</button>
+  <button class="tab-button" data-tab="aws">AWS Hosting Cost</button>
+  <button class="tab-button" data-tab="market">Competitors</button>
+</div></nav>
+
+<main>
+  <section data-tab-panel="architecture" class="active"><div class="wrap">
+    <div class="band-label"><span class="idx">00</span><h2>Architecture Overview</h2><span class="sub">Detailed technical architecture reference</span></div>
+    <div class="arch-diagram-wrap" style="background:#f7f9fb;border:1px solid #315071;border-radius:14px;padding:8px;box-shadow:0 10px 28px -18px #000;">
+      <iframe id="arch-diagram-frame" sandbox="allow-scripts allow-same-origin" style="width:100%;border:none;border-radius:8px;min-height:700px;" srcdoc="&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;title&gt;Wizz Learning Architecture&lt;/title&gt;
+&lt;meta name=&quot;claude:viewport-fit-sides&quot; content=&quot;cover&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap&quot;&gt;
+&lt;style&gt;
+/* Single-theme: light technical diagram, deliberate choice */
+:root {
+  --bg: #f7f9fb;
+  --fg: #1a2332;
+  --fg-muted: #5a6a7e;
+  --fg-light: #8896a8;
+
+  --teal: #1f6e6b;
+  --teal-light: #e8f4f3;
+  --navy: #1f4e6b;
+  --navy-light: #e4eef5;
+  --orange: #c25b3c;
+  --orange-light: #fdf0eb;
+  --green: #2d7d46;
+  --green-light: #eaf5ed;
+  --amber: #b8860b;
+  --amber-light: #fff8e6;
+  --red: #c0392b;
+  --red-light: #fceae8;
+
+  --card-bg: #ffffff;
+  --card-border: #d8dee6;
+  --card-shadow: 0 1px 3px rgba(26,35,50,0.08);
+  --section-bg: #eef2f7;
+  --section-border: #c8d0dc;
+
+  --sidebar-bg: #1f4e6b;
+  --sidebar-fg: #ffffff;
+  --sidebar-muted: #a8c4d8;
+
+  --arrow: #7a8a9e;
+  --arrow-highlight: #1f6e6b;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme=&quot;light&quot;]) {
+  --bg: #0f1419;
+  --fg: #e2e8f0;
+  --fg-muted: #94a3b8;
+  --fg-light: #64748b;
+  --teal: #3db8b2;
+  --teal-light: #0f2928;
+  --navy: #5ba3d9;
+  --navy-light: #142636;
+  --orange: #e8845a;
+  --orange-light: #2a1810;
+  --green: #4ade80;
+  --green-light: #0f2618;
+  --amber: #f59e0b;
+  --amber-light: #291e05;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --card-bg: #1a2332;
+  --card-border: #2d3d52;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --section-bg: #141c28;
+  --section-border: #2d3d52;
+  --sidebar-bg: #142636;
+  --sidebar-fg: #e2e8f0;
+  --sidebar-muted: #7a9ab8;
+  --arrow: #5a6a7e;
+  --arrow-highlight: #3db8b2;
+  color-scheme: dark;
+}}
+:root[data-theme=&quot;dark&quot;] {
+  --bg: #0f1419;
+  --fg: #e2e8f0;
+  --fg-muted: #94a3b8;
+  --fg-light: #64748b;
+  --teal: #3db8b2;
+  --teal-light: #0f2928;
+  --navy: #5ba3d9;
+  --navy-light: #142636;
+  --orange: #e8845a;
+  --orange-light: #2a1810;
+  --green: #4ade80;
+  --green-light: #0f2618;
+  --amber: #f59e0b;
+  --amber-light: #291e05;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --card-bg: #1a2332;
+  --card-border: #2d3d52;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --section-bg: #141c28;
+  --section-border: #2d3d52;
+  --sidebar-bg: #142636;
+  --sidebar-fg: #e2e8f0;
+  --sidebar-muted: #7a9ab8;
+  --arrow: #5a6a7e;
+  --arrow-highlight: #3db8b2;
+  color-scheme: dark;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: &#x27;Inter&#x27;, system-ui, -apple-system, sans-serif;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px;
+  line-height: 1.4;
+}
+
+.page-header {
+  margin-bottom: 6px;
+}
+.session-tag {
+  font-family: &#x27;JetBrains Mono&#x27;, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.page-title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--fg);
+  text-wrap: balance;
+  line-height: 1.15;
+}
+.page-subtitle {
+  font-size: 0.9rem;
+  color: var(--fg-muted);
+  margin-top: 4px;
+  max-width: 72ch;
+}
+
+.diagram-scroll {
+  overflow-x: auto;
+  margin-top: 16px;
+  padding-bottom: 8px;
+}
+.diagram {
+  display: grid;
+  grid-template-columns: 140px 1fr 200px;
+  gap: 12px;
+  min-width: 960px;
+  font-size: 0.72rem;
+}
+
+/* Left user column */
+.users-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 36px;
+}
+.user-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: var(--card-shadow);
+}
+.user-card h4 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--teal);
+  margin-bottom: 2px;
+}
+.user-card p {
+  font-size: 0.65rem;
+  color: var(--fg-muted);
+  line-height: 1.35;
+}
+.user-card.learner {
+  border-left: 3px solid var(--teal);
+}
+.user-card.teacher {
+  border-left: 3px solid var(--orange);
+}
+.user-card.reviewer {
+  border-left: 3px solid var(--navy);
+}
+.user-card.admin {
+  border-left: 3px solid var(--fg-muted);
+}
+
+/* Center column */
+.center-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Section headers */
+.section-label {
+  font-family: &#x27;JetBrains Mono&#x27;, monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 0;
+}
+.section-label.runtime { color: var(--fg); }
+.section-label .dim { color: var(--fg-light); font-weight: 400; }
+
+/* Flow rows */
+.flow-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.step-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  box-shadow: var(--card-shadow);
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+.step-card .num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+.step-card h5 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fg);
+  display: inline;
+}
+.step-card p {
+  font-size: 0.62rem;
+  color: var(--fg-muted);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+.step-card.rules {
+  border-color: var(--teal);
+  background: var(--teal-light);
+}
+.step-card.ai {
+  border-color: var(--orange);
+  background: var(--orange-light);
+}
+.step-card.gate {
+  border-color: var(--amber);
+  background: var(--amber-light);
+}
+
+.arrow-right {
+  width: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--arrow);
+}
+.arrow-right svg { width: 20px; height: 12px; }
+
+.branch-indicator {
+  font-size: 0.6rem;
+  color: var(--fg-light);
+  text-align: center;
+  padding: 2px 0;
+  font-style: italic;
+}
+.branch-indicator .pct { font-weight: 600; color: var(--fg-muted); }
+
+/* Verification gate section */
+.gate-section {
+  background: var(--section-bg);
+  border: 1.5px solid var(--amber);
+  border-radius: 8px;
+  padding: 10px;
+}
+.gate-section .section-label {
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+
+/* SME review section */
+.sme-section {
+  background: var(--section-bg);
+  border: 1.5px solid var(--orange);
+  border-radius: 8px;
+  padding: 10px;
+}
+.sme-section .section-label {
+  color: var(--red);
+  margin-bottom: 6px;
+}
+
+/* Knowledge section */
+.knowledge-section {
+  background: var(--section-bg);
+  border: 1.5px solid var(--navy);
+  border-radius: 8px;
+  padding: 10px;
+}
+.knowledge-section .section-label {
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+/* Right sidebar */
+.sidebar-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 36px;
+}
+.sidebar-card {
+  background: var(--sidebar-bg);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--sidebar-fg);
+}
+.sidebar-card h4 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--sidebar-fg);
+  margin-bottom: 3px;
+}
+.sidebar-card p {
+  font-size: 0.6rem;
+  color: var(--sidebar-muted);
+  line-height: 1.35;
+}
+.sidebar-section-label {
+  font-family: &#x27;JetBrains Mono&#x27;, monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Responsive: phone gets horizontal scroll on the diagram */
+@media (max-width: 600px) {
+  .diagram { min-width: 880px; }
+}
+&lt;/style&gt;
+
+&lt;div class=&quot;page-header&quot;&gt;
+  &lt;div class=&quot;session-tag&quot;&gt;Sessions 6 &amp;amp; 8 · Target Architecture&lt;/div&gt;
+  &lt;h1 class=&quot;page-title&quot;&gt;Architecture: verify before delivery&lt;/h1&gt;
+  &lt;p class=&quot;page-subtitle&quot;&gt;Rules answer ~80% with no model call; every generated answer passes the verification gate before a learner sees it.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;diagram-scroll&quot;&gt;
+&lt;div class=&quot;diagram&quot;&gt;
+
+  &lt;!-- LEFT: Users --&gt;
+  &lt;div class=&quot;users-col&quot;&gt;
+    &lt;div style=&quot;font-family:&#x27;JetBrains Mono&#x27;,monospace;font-size:0.68rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--fg)&quot;&gt;Users&lt;/div&gt;
+
+    &lt;div class=&quot;user-card learner&quot;&gt;
+      &lt;h4&gt;Learner app&lt;/h4&gt;
+      &lt;p&gt;web / Android / low bandwidth · Grade 6–12&lt;/p&gt;
+      &lt;p style=&quot;margin-top:4px;font-size:0.6rem;color:var(--orange)&quot;&gt;&quot;Report a problem&quot; on every answer · correction notices&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;user-card teacher&quot;&gt;
+      &lt;h4&gt;Teacher dashboard&lt;/h4&gt;
+      &lt;p&gt;overrides · corrections&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;user-card reviewer&quot;&gt;
+      &lt;h4&gt;Reviewer&lt;/h4&gt;
+      &lt;p&gt;escalations · audits · approvals&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;user-card admin&quot;&gt;
+      &lt;h4&gt;Admin&lt;/h4&gt;
+      &lt;p&gt;consent&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- CENTER: Architecture layers --&gt;
+  &lt;div class=&quot;center-col&quot;&gt;
+
+    &lt;!-- Runtime row --&gt;
+    &lt;div class=&quot;section-label runtime&quot;&gt;Runtime &lt;span class=&quot;dim&quot;&gt;— every request&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&quot;flow-row&quot;&gt;
+      &lt;div class=&quot;step-card&quot;&gt;
+        &lt;span class=&quot;num&quot;&gt;1&lt;/span&gt;&lt;h5&gt;API gateway&lt;/h5&gt;
+        &lt;p&gt;auth · rate limit&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-card&quot;&gt;
+        &lt;span class=&quot;num&quot;&gt;2&lt;/span&gt;&lt;h5&gt;Input guard&lt;/h5&gt;
+        &lt;p&gt;PII scrub · injection check&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-card&quot;&gt;
+        &lt;span class=&quot;num&quot;&gt;3&lt;/span&gt;&lt;h5&gt;Task router&lt;/h5&gt;
+        &lt;p&gt;rules (~80%) or AI (~20%)&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-card rules&quot;&gt;
+        &lt;span class=&quot;num&quot; style=&quot;background:var(--green)&quot;&gt;4&lt;/span&gt;&lt;h5&gt;Rules engine + FAQ cache&lt;/h5&gt;
+        &lt;p&gt;no LLM · reuses SME-approved answers&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;branch-indicator&quot;&gt;
+      &lt;span class=&quot;pct&quot;&gt;④&lt;/span&gt; replies directly to the learner &amp;nbsp;|&amp;nbsp; AI path &lt;span class=&quot;pct&quot;&gt;~20%&lt;/span&gt; ↓
+    &lt;/div&gt;
+
+    &lt;!-- AI generation row --&gt;
+    &lt;div class=&quot;flow-row&quot;&gt;
+      &lt;div class=&quot;step-card ai&quot;&gt;
+        &lt;span class=&quot;num&quot; style=&quot;background:var(--orange)&quot;&gt;5&lt;/span&gt;&lt;h5&gt;Hybrid retrieval&lt;/h5&gt;
+        &lt;p&gt;vector 70 / keyword 30 · textbook + examples library&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-card ai&quot;&gt;
+        &lt;span class=&quot;num&quot; style=&quot;background:var(--orange)&quot;&gt;6&lt;/span&gt;&lt;h5&gt;Context builder&lt;/h5&gt;
+        &lt;p&gt;top-k · compression · versioned prompt&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div class=&quot;step-card ai&quot;&gt;
+        &lt;span class=&quot;num&quot; style=&quot;background:var(--orange)&quot;&gt;7&lt;/span&gt;&lt;h5&gt;Generator LLM&lt;/h5&gt;
+        &lt;p&gt;DeepSeek V4.1-Flash · pinned · tags each sentence: concept / fact / story&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Verification gate --&gt;
+    &lt;div class=&quot;gate-section&quot;&gt;
+      &lt;div class=&quot;section-label&quot; style=&quot;color:var(--orange)&quot;&gt;Verification Gate (FR4) &lt;span class=&quot;dim&quot;&gt;— every generated answer · story-aware groundedness&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;flow-row&quot;&gt;
+        &lt;div class=&quot;step-card gate&quot;&gt;
+          &lt;span class=&quot;num&quot; style=&quot;background:var(--amber)&quot;&gt;13&lt;/span&gt;&lt;h5&gt;Output guard&lt;/h5&gt;
+          &lt;p&gt;safety · AI label · citations · Verified / Pending review badge&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card gate&quot; style=&quot;border-color:var(--green);background:var(--green-light)&quot;&gt;
+          &lt;span class=&quot;num&quot; style=&quot;background:var(--green)&quot;&gt;12&lt;/span&gt;&lt;h5&gt;Policy gate&lt;/h5&gt;
+          &lt;p&gt;PASS · RETRY · ESCALATE &amp;amp; share AI-generated response if user confirms&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card gate&quot;&gt;
+          &lt;span class=&quot;num&quot; style=&quot;background:var(--amber)&quot;&gt;11&lt;/span&gt;&lt;h5&gt;Judge LLM&lt;/h5&gt;
+          &lt;p&gt;Qwen · pinned · 5 verdicts per claim · cites evidence&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card gate&quot;&gt;
+          &lt;span class=&quot;num&quot; style=&quot;background:var(--amber)&quot;&gt;10&lt;/span&gt;&lt;h5&gt;Evidence matcher&lt;/h5&gt;
+          &lt;p&gt;concepts → textbook · facts → textbook or examples library&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card gate&quot;&gt;
+          &lt;span class=&quot;num&quot; style=&quot;background:var(--amber)&quot;&gt;9&lt;/span&gt;&lt;h5&gt;Claim-type classifier&lt;/h5&gt;
+          &lt;p&gt;concept · real-world fact · story premise · narrative · unsure → scored&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card gate&quot;&gt;
+          &lt;span class=&quot;num&quot; style=&quot;background:var(--amber)&quot;&gt;8&lt;/span&gt;&lt;h5&gt;Claim extractor&lt;/h5&gt;
+          &lt;p&gt;atomic claims&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- SME Review Loop --&gt;
+    &lt;div class=&quot;sme-section&quot;&gt;
+      &lt;div class=&quot;section-label&quot; style=&quot;color:var(--red)&quot;&gt;SME Review Loop &lt;span class=&quot;dim&quot;&gt;— escalated once, then the approved answer is reused&lt;/span&gt;&lt;/div&gt;
+      &lt;div class=&quot;flow-row&quot;&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;SME review queue&lt;/h5&gt;
+          &lt;p&gt;escalations from ⑫ · user reports · 5–10% audit · duplicates grouped&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;SME decision&lt;/h5&gt;
+          &lt;p&gt;approve · correct · reject · critical: hours; others: 6–24 h&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;Update DB&lt;/h5&gt;
+          &lt;p&gt;answer → ④ cache · claims → examples library · never flagged twice&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;Correct the user&lt;/h5&gt;
+          &lt;p&gt;verified answer + notice to student / teacher&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;arrow-right&quot;&gt;&lt;svg viewBox=&quot;0 0 20 12&quot;&gt;&lt;path d=&quot;M0 6h16M12 1l5 5-5 5&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;&lt;/svg&gt;&lt;/div&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;Learn&lt;/h5&gt;
+          &lt;p&gt;regression set · root cause · retrains ⑨ · re-tests ⑪&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Governed Knowledge --&gt;
+    &lt;div class=&quot;knowledge-section&quot;&gt;
+      &lt;div class=&quot;section-label&quot; style=&quot;color:var(--navy)&quot;&gt;Governed Knowledge &amp;amp; Data &lt;span class=&quot;dim&quot;&gt;— India region, isolated per school&lt;/span&gt;&lt;/div&gt;
+      &lt;div style=&quot;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px&quot;&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;School-approved curriculum&lt;/h5&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;Parse + equation-aware OCR&lt;/h5&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;PII redaction · versioning&lt;/h5&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;Recursive chunks&lt;/h5&gt;
+          &lt;p&gt;400–600 tokens&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;step-card&quot;&gt;
+          &lt;h5&gt;Embeddings&lt;/h5&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div style=&quot;display:grid;grid-template-columns:repeat(4,1fr);gap:6px&quot;&gt;
+        &lt;div class=&quot;step-card&quot; style=&quot;border-color:var(--navy)&quot;&gt;
+          &lt;h5&gt;Vector + keyword index&lt;/h5&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;step-card&quot; style=&quot;border-color:var(--navy)&quot;&gt;
+          &lt;h5&gt;Examples library&lt;/h5&gt;
+          &lt;p&gt;SME-approved · grows with approvals&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;step-card&quot; style=&quot;border-color:var(--navy)&quot;&gt;
+          &lt;h5&gt;Concept graph&lt;/h5&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;step-card&quot; style=&quot;border-color:var(--navy)&quot;&gt;
+          &lt;h5&gt;Learner mastery&lt;/h5&gt;
+          &lt;p&gt;codes only&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div style=&quot;display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:6px&quot;&gt;
+        &lt;div class=&quot;step-card&quot; style=&quot;border-color:var(--navy)&quot;&gt;
+          &lt;h5&gt;Audit log&lt;/h5&gt;
+          &lt;p&gt;versions · verdicts · corrections&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+
+  &lt;!-- RIGHT: Governance sidebar --&gt;
+  &lt;div class=&quot;sidebar-col&quot;&gt;
+    &lt;div class=&quot;sidebar-section-label&quot;&gt;Governance &amp;amp; Ops · central AI CoE&lt;/div&gt;
+
+    &lt;div class=&quot;sidebar-card&quot;&gt;
+      &lt;h4&gt;Evaluation harness&lt;/h4&gt;
+      &lt;p&gt;gold set + regression set of past errors · weekly + every change&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;sidebar-card&quot;&gt;
+      &lt;h4&gt;Model registry + model card&lt;/h4&gt;
+      &lt;p&gt;pinned versions · approved changes&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;sidebar-card&quot;&gt;
+      &lt;h4&gt;Change control (CI/CD)&lt;/h4&gt;
+      &lt;p&gt;canary 1 school · must pass regression set · rollback &amp;lt; 1 h&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;sidebar-card&quot;&gt;
+      &lt;h4&gt;Monitoring + cost meter&lt;/h4&gt;
+      &lt;p&gt;by school / grade · spend ceiling · verified-but-wrong rate · escalation ≤ 0.7%&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;sidebar-card&quot;&gt;
+      &lt;h4&gt;Reviewer operations&lt;/h4&gt;
+      &lt;p&gt;SME staffing · SLA tracking · double review of critical items&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;&lt;/html&gt;"></iframe>
+      <p style="margin:8px 4px 4px;color:var(--muted);font-size:12px;">Target architecture (Sessions 6 &amp; 8): verify before delivery. The task router uses Jev to route each question. Scroll horizontally to see the full diagram.</p>
+    </div>
+  </div></section>
+
+
+  <section data-tab-panel="architecture" class="active"><div class="wrap">
+    <div class="band-label"><span class="idx">01</span><h2>Client &amp; Experience</h2><span class="sub">Web apps &amp; UI</span></div>
+    <div class="grid">
+      <article class="card"><h3>Teacher Web App</h3><p>Create · Curate · Assess</p></article>
+      <article class="card"><h3>Student Web App</h3><p>Learn · Ask · Create</p></article>
+      <article class="card"><h3>Responsive UI</h3><p>Desktop · Tablet · Mobile</p></article>
+      <article class="card"><h3>Product Features</h3><p>Dashboard · Documents · Personalization · Chat · Assessments · Visuals · Audio</p></article>
+    </div>
+    <div class="transport">🔒 HTTPS / JSON / Form POST</div>
+  </div></section>
+
+  <section data-tab-panel="architecture" class="active"><div class="wrap">
+    <div class="band-label"><span class="idx">02</span><h2>Application &amp; Orchestration</h2><span class="sub">Flask 3.1</span></div>
+    <div class="grid">
+      <article class="card"><h3>Flask Blueprints</h3><p>Auth · Content · Tools · AI · Admin</p></article>
+      <article class="card"><h3>Flask-Login</h3><p>Session auth · RBAC</p></article>
+      <article class="card"><h3>Task Router · Jev</h3><p>Rules (~80%) · AI (~20%) · confidence ≥ 0.8, else AI path</p></article>
+      <article class="card"><h3>Personalization Engine</h3><p>Grade · Mastery · History · Difficulty</p></article>
+      <article class="card"><h3>Content Renderers</h3><p>Markdown · Mermaid · Infographics · Story</p></article>
+      <article class="card"><h3>Offline Voice Service</h3><p>On-device TTS · F / M</p></article>
+    </div>
+  </div></section>
+
+  <section data-tab-panel="architecture" class="active"><div class="wrap">
+    <div class="band-label"><span class="idx">03</span><h2>Governed AI &amp; Knowledge Pipelines</h2><span class="sub">RAG · retrieval · verification — trust boundary</span></div>
+    <div class="boundary">
+      <div class="pipe-stack">
+
+        <div class="pipe">
+          <h4>A · Document Ingestion</h4>
+          <p class="pipe-sub">source material → governed index</p>
+          <figure class="diagfig">
+          <div class="diagram-wrap">
+          <svg class="flowdiag" viewBox="0 0 1620 150" role="img" aria-label="Flow: an uploaded document is validated, extracted, checksummed and versioned, PII-redacted, chunked with metadata tags, embedded with Gemini Embedding 2 or all-MiniLM, then persisted to the vector index.">
+            <defs><marker id="mA" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="#54e3d1"/></marker></defs>
+            <g font-family="Inter, ui-sans-serif, system-ui, sans-serif" fill="currentColor">
+              <rect x="20" y="25" width="205" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="32" y="40" font-size="9" fill="#54e3d1" font-family="ui-monospace,monospace">1</text>
+              <text x="122" y="62" text-anchor="middle" font-size="12" font-weight="700">Upload +</text>
+              <text x="122" y="78" text-anchor="middle" font-size="12" font-weight="700">Validate</text>
+              <line x1="225" y1="65" x2="239" y2="65" stroke="#54e3d1" stroke-width="1.4" marker-end="url(#mA)"/>
+
+              <rect x="241" y="25" width="205" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="253" y="40" font-size="9" fill="#54e3d1" font-family="ui-monospace,monospace">2</text>
+              <text x="343" y="62" text-anchor="middle" font-size="12" font-weight="700">PDF / DOCX / TXT</text>
+              <text x="343" y="78" text-anchor="middle" font-size="12" font-weight="700">Extraction</text>
+              <line x1="446" y1="65" x2="460" y2="65" stroke="#54e3d1" stroke-width="1.4" marker-end="url(#mA)"/>
+
+              <rect x="462" y="25" width="205" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="474" y="40" font-size="9" fill="#54e3d1" font-family="ui-monospace,monospace">3</text>
+              <text x="564" y="62" text-anchor="middle" font-size="12" font-weight="700">Checksum +</text>
+              <text x="564" y="78" text-anchor="middle" font-size="12" font-weight="700">Version</text>
+              <line x1="667" y1="65" x2="681" y2="65" stroke="#54e3d1" stroke-width="1.4" marker-end="url(#mA)"/>
+
+              <rect x="683" y="25" width="205" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="695" y="40" font-size="9" fill="#54e3d1" font-family="ui-monospace,monospace">4</text>
+              <text x="785" y="70" text-anchor="middle" font-size="12" font-weight="700">PII Redaction</text>
+              <line x1="888" y1="65" x2="902" y2="65" stroke="#54e3d1" stroke-width="1.4" marker-end="url(#mA)"/>
+
+              <rect x="904" y="25" width="205" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="916" y="40" font-size="9" fill="#54e3d1" font-family="ui-monospace,monospace">5</text>
+              <text x="1006" y="62" text-anchor="middle" font-size="12" font-weight="700">Chunk +</text>
+              <text x="1006" y="78" text-anchor="middle" font-size="12" font-weight="700">Metadata Tags</text>
+              <line x1="1109" y1="65" x2="1123" y2="65" stroke="#54e3d1" stroke-width="1.4" marker-end="url(#mA)"/>
+
+              <rect x="1125" y="15" width="205" height="100" rx="10" fill="#0d2038" stroke="#54e3d1" stroke-width="1.7"/>
+              <text x="1137" y="30" font-size="9" fill="#54e3d1" font-family="ui-monospace,monospace">6</text>
+              <text x="1227" y="48" text-anchor="middle" font-size="12" font-weight="700">Embeddings</text>
+              <text x="1227" y="64" text-anchor="middle" font-size="10" fill="#9fb0ca">Gemini / all-MiniLM</text>
+              <text x="1227" y="82" text-anchor="middle" font-size="10.5" font-family="ui-monospace,monospace" fill="#54e3d1">$0.10 / 1M tokens</text>
+              <text x="1227" y="98" text-anchor="middle" font-size="8.5" fill="#6f83a3">production / fallback</text>
+              <line x1="1330" y1="65" x2="1344" y2="65" stroke="#54e3d1" stroke-width="1.4" marker-end="url(#mA)"/>
+
+              <rect x="1346" y="25" width="205" height="80" rx="10" fill="#10233b" stroke="#54e3d1" stroke-width="1.6"/>
+              <text x="1358" y="40" font-size="9" fill="#54e3d1" font-family="ui-monospace,monospace">7</text>
+              <text x="1448" y="62" text-anchor="middle" font-size="12" font-weight="700">Persist</text>
+              <text x="1448" y="78" text-anchor="middle" font-size="12" font-weight="700">Index</text>
+            </g>
+          </svg>
+          </div>
+          <figcaption>Every uploaded document moves through validation, extraction, checksum/versioning, PII redaction, chunking and metadata tagging, embedding, then persistence to the vector index — one pass, no branches.</figcaption>
+          </figure>
+          <div class="footnote">metadata persisted per chunk: owner_id · document_id · page · concept · grade · subject</div>
+        </div>
+
+        <div class="transport" style="border-color:var(--cyan);color:var(--cyan)">⬇ persisted index feeds Block B's hybrid retrieval</div>
+
+        <div class="pipe">
+          <h4>B · Personalized RAG Runtime</h4>
+          <p class="pipe-sub">query → grounded candidate answer</p>
+          <figure class="diagfig">
+          <div class="diagram-wrap">
+          <svg class="flowdiag" viewBox="0 0 1620 150" role="img" aria-label="Flow: an incoming query is checked for prompt injection, optimized, filtered by tenant and selected documents, retrieved with 70 percent vector and 30 percent keyword weighting, assembled into context, then passed to DeepSeek V4 Flash which generates the candidate answer with citations.">
+            <defs>
+              <marker id="mB1" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="currentColor"/></marker>
+              <marker id="mB2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="#55a6ff"/></marker>
+            </defs>
+            <g font-family="Inter, ui-sans-serif, system-ui, sans-serif" fill="currentColor">
+              <rect x="20" y="25" width="150" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="32" y="40" font-size="9" fill="#9fb0ca" font-family="ui-monospace,monospace">1</text>
+              <text x="95" y="62" text-anchor="middle" font-size="11.5" font-weight="700">Prompt-Injection</text>
+              <text x="95" y="78" text-anchor="middle" font-size="11.5" font-weight="700">Check</text>
+              <line x1="170" y1="65" x2="184" y2="65" stroke="currentColor" stroke-width="1.3" marker-end="url(#mB1)"/>
+
+              <rect x="186" y="25" width="150" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="198" y="40" font-size="9" fill="#9fb0ca" font-family="ui-monospace,monospace">2</text>
+              <text x="261" y="62" text-anchor="middle" font-size="11.5" font-weight="700">Query</text>
+              <text x="261" y="78" text-anchor="middle" font-size="11.5" font-weight="700">Optimization</text>
+              <line x1="336" y1="65" x2="350" y2="65" stroke="currentColor" stroke-width="1.3" marker-end="url(#mB1)"/>
+
+              <rect x="352" y="25" width="150" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="364" y="40" font-size="9" fill="#9fb0ca" font-family="ui-monospace,monospace">3</text>
+              <text x="427" y="62" text-anchor="middle" font-size="11.5" font-weight="700">Tenant + Doc</text>
+              <text x="427" y="78" text-anchor="middle" font-size="11.5" font-weight="700">Filter</text>
+              <line x1="502" y1="65" x2="516" y2="65" stroke="currentColor" stroke-width="1.3" marker-end="url(#mB1)"/>
+
+              <rect x="518" y="25" width="150" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="530" y="40" font-size="9" fill="#9fb0ca" font-family="ui-monospace,monospace">4</text>
+              <text x="593" y="62" text-anchor="middle" font-size="11.5" font-weight="700">Hybrid Retrieval</text>
+              <text x="593" y="78" text-anchor="middle" font-size="10" fill="#9fb0ca">vector 70% · kw 30%</text>
+              <line x1="668" y1="65" x2="682" y2="65" stroke="currentColor" stroke-width="1.3" marker-end="url(#mB1)"/>
+
+              <rect x="684" y="25" width="150" height="80" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="696" y="40" font-size="9" fill="#9fb0ca" font-family="ui-monospace,monospace">5</text>
+              <text x="759" y="62" text-anchor="middle" font-size="11.5" font-weight="700">Context</text>
+              <text x="759" y="78" text-anchor="middle" font-size="11.5" font-weight="700">Assembly</text>
+              <line x1="834" y1="65" x2="848" y2="65" stroke="#55a6ff" stroke-width="1.6" marker-end="url(#mB2)"/>
+
+              <rect x="850" y="10" width="260" height="110" rx="10" fill="#0d2038" stroke="#55a6ff" stroke-width="1.7"/>
+              <text x="980" y="32" text-anchor="middle" font-size="12" font-weight="700">Answer Generation Model</text>
+              <text x="980" y="50" text-anchor="middle" font-size="11" fill="#9fb0ca">DeepSeek V4 Flash</text>
+              <text x="980" y="68" text-anchor="middle" font-size="10" fill="#9fb0ca">grounded answers · quizzes</text>
+              <text x="980" y="82" text-anchor="middle" font-size="10" fill="#9fb0ca">activities · assessments</text>
+              <text x="980" y="100" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#54e3d1">₹0.14 / query</text>
+              <line x1="1110" y1="65" x2="1124" y2="65" stroke="#55a6ff" stroke-width="1.6" marker-end="url(#mB2)"/>
+
+              <rect x="1126" y="25" width="200" height="80" rx="10" fill="#10233b" stroke="#55a6ff" stroke-width="1.6"/>
+              <text x="1138" y="40" font-size="9" fill="#55a6ff" font-family="ui-monospace,monospace">6</text>
+              <text x="1226" y="58" text-anchor="middle" font-size="11.5" font-weight="700">Candidate Answer</text>
+              <text x="1226" y="74" text-anchor="middle" font-size="11.5" font-weight="700">+ Citations</text>
+              <text x="1226" y="90" text-anchor="middle" font-size="9" fill="#6f83a3">→ enters Block C</text>
+            </g>
+          </svg>
+          </div>
+          <figcaption>A query is checked for injection, optimized, filtered by tenant and document selection, retrieved with 70/30 vector-keyword weighting and assembled into context before DeepSeek V4 Flash generates the cited candidate answer that Block C verifies.</figcaption>
+          </figure>
+        </div>
+
+        <div class="transport" style="border-color:var(--blue);color:var(--blue)">⬇ candidate answer + citations enters Block C's verification pipeline</div>
+
+        <div class="pipe">
+          <h4>C · Verification + Decision + Image Generation Pipeline</h4>
+          <p class="pipe-sub">candidate answer → policy-gated, cited output (with visuals on demand)</p>
+
+          <figure class="diagfig">
+          <div class="diagram-wrap">
+          <svg class="flowdiag" viewBox="0 0 1620 600" role="img" aria-label="Flow: candidate answer moves through claim extraction, evidence matching and a Qwen 3.6 Flash verification judge to a policy gate. On pass, a visual-needed check either returns the cited answer or generates an image via GPT Image 2 Low, falling back to Qwen-Image-2512 on failure, both caching to render. On fail, a bounded retry regenerates and re-verifies once; a second failure escalates to human review, which logs to the audit trail and feeds a reviewer-feedback loop into the evaluation set.">
+            <defs>
+              <marker id="arH" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="currentColor"/></marker>
+              <marker id="arG" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="#54dfa1"/></marker>
+              <marker id="arA" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="#ffc967"/></marker>
+              <marker id="arR" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="#ff7d9c"/></marker>
+              <marker id="arV" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><polygon points="0,0 9,4 0,8" fill="#b79cff"/></marker>
+            </defs>
+            <g font-family="Inter, ui-sans-serif, system-ui, sans-serif" fill="currentColor">
+
+              <!-- main spine -->
+              <rect x="20" y="30" width="150" height="70" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="95" y="60" text-anchor="middle" font-size="12" font-weight="700">Candidate Answer</text>
+              <text x="95" y="76" text-anchor="middle" font-size="12" font-weight="700">+ Citations</text>
+
+              <line x1="170" y1="65" x2="196" y2="65" stroke="currentColor" stroke-width="1.3" marker-end="url(#arH)"/>
+              <rect x="200" y="30" width="150" height="70" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="275" y="58" text-anchor="middle" font-size="11.5" font-weight="700">① Atomic Claim</text>
+              <text x="275" y="74" text-anchor="middle" font-size="11.5" font-weight="700">Extraction</text>
+
+              <line x1="350" y1="65" x2="376" y2="65" stroke="currentColor" stroke-width="1.3" marker-end="url(#arH)"/>
+              <rect x="380" y="30" width="150" height="70" rx="10" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="455" y="58" text-anchor="middle" font-size="11.5" font-weight="700">② Evidence</text>
+              <text x="455" y="74" text-anchor="middle" font-size="11.5" font-weight="700">Match</text>
+
+              <line x1="530" y1="65" x2="556" y2="65" stroke="currentColor" stroke-width="1.3" marker-end="url(#arH)"/>
+              <rect x="560" y="10" width="240" height="110" rx="10" fill="#0d2038" stroke="#54dfa1" stroke-width="1.6"/>
+              <text x="680" y="32" text-anchor="middle" font-size="11.5" font-weight="700">③ Verification Judge</text>
+              <text x="680" y="50" text-anchor="middle" font-size="11" fill="#9fb0ca">Qwen 3.6 Flash — different provider</text>
+              <text x="680" y="66" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#54e3d1">≈₹0.0154 / verification</text>
+              <text x="680" y="84" text-anchor="middle" font-size="10" fill="#9fb0ca">Groundedness · Relevance</text>
+              <text x="680" y="98" text-anchor="middle" font-size="10" fill="#9fb0ca">Pedagogy · Bias safety</text>
+
+              <line x1="800" y1="65" x2="826" y2="65" stroke="currentColor" stroke-width="1.3" marker-end="url(#arH)"/>
+              <rect x="830" y="38" width="105" height="54" rx="9" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="882.5" y="69" text-anchor="middle" font-size="11.5" font-weight="700">Policy Gate</text>
+
+              <!-- Compact, clearly separated Policy Gate to PASS decision -->
+              <line x1="935" y1="65" x2="969" y2="65" stroke="#54dfa1" stroke-width="2.4" marker-end="url(#arG)"/>
+              <polygon points="1010,27 1048,65 1010,103 972,65" fill="#10233b" stroke="#54dfa1" stroke-width="1.8"/>
+              <text x="1010" y="69" text-anchor="middle" font-size="11" font-weight="700">PASS?</text>
+
+              <!-- Yes -> visual needed -->
+              <line x1="1048" y1="65" x2="1112" y2="65" stroke="#54dfa1" stroke-width="1.8" marker-end="url(#arG)"/>
+              <text x="1080" y="53" text-anchor="middle" font-size="10.5" font-weight="700" fill="#54dfa1">Yes</text>
+              <polygon points="1170,15 1225,65 1170,115 1115,65" fill="#10233b" stroke="currentColor" stroke-width="1.3"/>
+              <text x="1170" y="60" text-anchor="middle" font-size="10.5" font-weight="700">Visual</text>
+              <text x="1170" y="74" text-anchor="middle" font-size="10.5" font-weight="700">needed?</text>
+
+              <!-- visual: no -> return answer -->
+              <line x1="1225" y1="65" x2="1266" y2="65" stroke="#54dfa1" stroke-width="1.6" marker-end="url(#arG)"/>
+              <text x="1246" y="55" text-anchor="middle" font-size="10.5" font-weight="700" fill="#54dfa1">No</text>
+              <rect x="1270" y="30" width="170" height="70" rx="10" fill="#0d2038" stroke="#54dfa1" stroke-width="1.6"/>
+              <text x="1355" y="58" text-anchor="middle" font-size="11.5" font-weight="700">Return Answer</text>
+              <text x="1355" y="74" text-anchor="middle" font-size="11.5" font-weight="700">+ Citations</text>
+              <text x="1355" y="92" text-anchor="middle" font-size="9.5" fill="#9fb0ca">decision · scores logged</text>
+
+              <!-- visual: yes -> visual prompt -->
+              <line x1="1170" y1="115" x2="1179" y2="176" stroke="#b79cff" stroke-width="1.6" marker-end="url(#arV)"/>
+              <text x="1214" y="150" text-anchor="middle" font-size="10.5" font-weight="700" fill="#b79cff">Yes</text>
+              <rect x="1080" y="180" width="200" height="64" rx="10" fill="#10233b" stroke="#b79cff" stroke-width="1.3"/>
+              <text x="1180" y="205" text-anchor="middle" font-size="11.5" font-weight="700">Visual Prompt +</text>
+              <text x="1180" y="221" text-anchor="middle" font-size="11.5" font-weight="700">Story / Analogy Context</text>
+              <text x="1180" y="237" text-anchor="middle" font-size="9.5" fill="#9fb0ca">from candidate answer</text>
+
+              <line x1="1180" y1="244" x2="1180" y2="276" stroke="#b79cff" stroke-width="1.6" marker-end="url(#arV)"/>
+              <rect x="1080" y="280" width="200" height="100" rx="10" fill="#151033" stroke="#b79cff" stroke-width="1.6"/>
+              <text x="1180" y="304" text-anchor="middle" font-size="11.5" font-weight="700">GPT Image 2 Low</text>
+              <text x="1180" y="320" text-anchor="middle" font-size="10" fill="#b79cff" font-weight="700">— PRIMARY —</text>
+              <text x="1180" y="338" text-anchor="middle" font-size="10" fill="#9fb0ca">Generate image · 2–4s</text>
+              <text x="1180" y="354" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#54e3d1">₹0.578 / image</text>
+              <text x="1180" y="370" text-anchor="middle" font-size="9" fill="#6f83a3">latency, provider &amp; cost logged</text>
+
+              <!-- gpt success -> cache -->
+              <path d="M1280,320 C 1330,320 1330,375 1370,388" fill="none" stroke="#54dfa1" stroke-width="1.6" marker-end="url(#arG)"/>
+              <text x="1332" y="308" text-anchor="middle" font-size="10" font-weight="700" fill="#54dfa1">success</text>
+
+              <!-- gpt fail -> qwen -->
+              <line x1="1180" y1="380" x2="1180" y2="426" stroke="#ff7d9c" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arR)"/>
+              <text x="1240" y="405" text-anchor="middle" font-size="10" font-weight="700" fill="#ff7d9c">failure / timeout</text>
+              <rect x="1080" y="430" width="200" height="100" rx="10" fill="#2a1420" stroke="#ff7d9c" stroke-width="1.6"/>
+              <text x="1180" y="454" text-anchor="middle" font-size="11.5" font-weight="700">Qwen-Image-2512</text>
+              <text x="1180" y="470" text-anchor="middle" font-size="10" fill="#ff7d9c" font-weight="700">— FALLBACK ONLY —</text>
+              <text x="1180" y="488" text-anchor="middle" font-size="10" fill="#9fb0ca">Generate image · ~4–8s</text>
+              <text x="1180" y="504" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#54e3d1">$0.02 / image (API)</text>
+              <text x="1180" y="520" text-anchor="middle" font-size="9" fill="#6f83a3">triggered only on primary failure</text>
+
+              <!-- qwen success -> cache -->
+              <path d="M1280,470 C 1330,470 1330,400 1370,392" fill="none" stroke="#54dfa1" stroke-width="1.6" marker-end="url(#arG)"/>
+              <text x="1332" y="460" text-anchor="middle" font-size="10" font-weight="700" fill="#54dfa1">success</text>
+
+              <rect x="1370" y="345" width="220" height="90" rx="10" fill="#0d2038" stroke="#54dfa1" stroke-width="1.6"/>
+              <text x="1480" y="373" text-anchor="middle" font-size="11.5" font-weight="700">Image Cache + Render</text>
+              <text x="1480" y="391" text-anchor="middle" font-size="9.5" fill="#9fb0ca">provider, trigger, latency</text>
+              <text x="1480" y="405" text-anchor="middle" font-size="9.5" fill="#9fb0ca">&amp; cost logged</text>
+
+              <!-- PASS no -> retry -->
+              <line x1="992" y1="83" x2="895" y2="176" stroke="#ffc967" stroke-width="1.6" marker-end="url(#arA)"/>
+              <text x="960" y="150" text-anchor="middle" font-size="10.5" font-weight="700" fill="#ffc967">No</text>
+              <rect x="780" y="180" width="200" height="80" rx="10" fill="#2a2110" stroke="#ffc967" stroke-width="1.6"/>
+              <text x="880" y="203" text-anchor="middle" font-size="11.5" font-weight="700">RETRY</text>
+              <text x="880" y="220" text-anchor="middle" font-size="10" fill="#9fb0ca">Correction prompt →</text>
+              <text x="880" y="235" text-anchor="middle" font-size="10" fill="#9fb0ca">regenerate answer</text>
+              <text x="880" y="250" text-anchor="middle" font-size="9" fill="#6f83a3">bounded: retry once</text>
+
+              <!-- retry loop back to claim extraction -->
+              <path d="M780,215 C 600,215 450,165 275,102" fill="none" stroke="#ffc967" stroke-width="1.4" stroke-dasharray="2 4" marker-end="url(#arA)"/>
+              <text x="530" y="188" text-anchor="middle" font-size="10.5" font-weight="700" fill="#ffc967">re-verify once</text>
+
+              <!-- retry -> escalate -->
+              <line x1="880" y1="260" x2="880" y2="306" stroke="#ff7d9c" stroke-width="1.6" marker-end="url(#arR)"/>
+              <text x="975" y="288" text-anchor="middle" font-size="10" font-weight="700" fill="#ff7d9c">retry still fails</text>
+              <rect x="780" y="310" width="200" height="70" rx="10" fill="#2a1420" stroke="#ff7d9c" stroke-width="1.6"/>
+              <text x="880" y="338" text-anchor="middle" font-size="11.5" font-weight="700">ESCALATE</text>
+              <text x="880" y="355" text-anchor="middle" font-size="10" fill="#9fb0ca">Human review</text>
+
+              <!-- escalate -> audit log -->
+              <path d="M880,380 C 895,405 900,422 895,438" fill="none" stroke="#ff7d9c" stroke-width="1.6" marker-end="url(#arR)"/>
+
+              <rect x="540" y="442" width="440" height="96" rx="10" fill="#0d1e34" stroke="#2d4c71" stroke-width="1.3"/>
+              <text x="760" y="466" text-anchor="middle" font-size="12" font-weight="700">Audit &amp; Verification Logs</text>
+              <text x="760" y="484" text-anchor="middle" font-size="10" fill="#9fb0ca">outcome · scores · unsupported claims · timing</text>
+              <text x="760" y="500" text-anchor="middle" font-size="10" fill="#9fb0ca">provider · trigger · latency · cost</text>
+              <text x="760" y="516" text-anchor="middle" font-size="10" fill="#9fb0ca">request id · user / tenant · policy version</text>
+
+              <!-- feedback loop -->
+              <path d="M540,490 L125,490 L125,236" fill="none" stroke="#ff7d9c" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arR)"/>
+              <rect x="20" y="178" width="215" height="54" rx="10" fill="#2a1420" stroke="#ff7d9c" stroke-width="1.3" stroke-dasharray="3 3"/>
+              <text x="127" y="200" text-anchor="middle" font-size="10.5" font-weight="700" fill="#ff7d9c">Reviewer feedback →</text>
+              <text x="127" y="216" text-anchor="middle" font-size="10.5" font-weight="700" fill="#ff7d9c">evaluation set / policy tuning</text>
+
+            </g>
+          </svg>
+          </div>
+          <figcaption>Candidate answer → claim extraction → evidence match → Qwen 3.6 Flash verification judge → policy gate. Pass routes to an optional visual (GPT Image 2 Low primary, Qwen-Image-2512 on failure/timeout); fail triggers one bounded retry, then escalates to human review, which feeds reviewer corrections back into the evaluation set.</figcaption>
+          </figure>
+        </div>
+
+      </div>
+    </div>
+  </div></section>
+
+  <section data-tab-panel="architecture" class="active"><div class="wrap">
+    <div class="band-label"><span class="idx">04</span><h2>Data, Audit &amp; Operations</h2></div>
+    <div class="grid">
+      <article class="card"><h3>SQLAlchemy + SQLite</h3><p>Users · Docs · Content · Signals</p></article>
+      <article class="card"><h3>LlamaIndex VectorStore</h3><p>Embeddings · Docstore · Index Store</p></article>
+      <article class="card"><h3>File Storage</h3><p>Uploads · Generated Audio · Exports</p></article>
+      <article class="card"><h3>Audit &amp; Verification Logs</h3><p>Outcome · Scores · Unsupported · Timing</p></article>
+      <article class="card"><h3>Configuration &amp; Secrets</h3><p>Env Vars · API Keys · Model Settings</p></article>
+    </div>
+  </div></section>
+
+  <section data-tab-panel="architecture" class="active"><div class="wrap">
+    <div class="band-label"><span class="idx">05</span><h2>AI model role map</h2><span class="sub">every model, its exact role, and unit cost</span></div>
+    <div class="table-scroll" style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Role</th><th>Model</th><th>What it does</th><th class="num">Cost</th></tr></thead>
+      <tbody>
+        <tr><td><span class="role-chip rc-embed">Embeddings</span></td><td><strong>Gemini Embedding 2</strong></td><td>Extract text from documents and create production embeddings (OCR + retrieval).</td><td class="cost">$0.10 / 1M tokens</td></tr>
+        <tr><td><span class="role-chip rc-fallback">Embed fallback</span></td><td><strong>HuggingFace all-MiniLM</strong></td><td>Fallback embeddings for POC and offline or cost-sensitive use.</td><td class="cost">self-hosted (~free)</td></tr>
+        <tr><td><span class="role-chip rc-embed">Task router</span></td><td><strong>Jev (TypeSafe AI)</strong></td><td>Classifies each question as rules (MCQ, definition, practice) or AI (explain / describe), and names the concept it belongs to. Returns a decision with a confidence score, not text. Below 0.8 it falls back to the AI path.</td><td class="cost">$0.042 / 1M input tokens · ≈₹0.0012 / question</td></tr>
+        <tr><td><span class="role-chip rc-gen">Generation</span></td><td><strong>DeepSeek V4 Flash</strong></td><td>Generate grounded answers, explanations, quizzes, activities and assessments with citations.</td><td class="cost">₹0.14 / query</td></tr>
+        <tr><td><span class="role-chip rc-judge">Verification</span></td><td><strong>Qwen 3.6 Flash — Judge</strong></td><td>Judge groundedness, relevance, pedagogy and bias safety for the policy gate. Deliberately a different provider than the DeepSeek generator, so the judge isn't grading its own family's output.</td><td class="cost">≈₹0.0154 / verification — ~half DeepSeek's rate</td></tr>
+        <tr><td><span class="role-chip rc-img">Image · primary</span></td><td><strong>GPT Image 2 Low</strong></td><td>Generate high-quality, text-aware images for explanations and visuals.</td><td class="cost">₹0.578 / image</td></tr>
+        <tr><td><span class="role-chip rc-imgfb">Image · fallback</span></td><td><strong>Qwen-Image-2512</strong></td><td>Fallback image generation, triggered only when the primary model fails or times out.</td><td class="cost">$0.02 / image (API)</td></tr>
+        <tr><td><span class="role-chip rc-tts">Voice-to-text · demo</span></td><td><strong>Groq Whisper large-v3-turbo</strong></td><td>Transcribe mic-button voice input to text — single synchronous API call, near-instant response.</td><td class="cost">free tier → ~$0.04/hr audio, paid tier</td></tr>
+        <tr><td><span class="role-chip rc-tts">Voice-to-text · production</span></td><td><strong>Amazon Transcribe Streaming</strong></td><td>Cloud STT replacing Groq, matched to today's instant mic-button feel via a persistent WebSocket audio stream instead of one-shot upload. Requires a client-side rewrite before launch — not a config swap. Same AWS account as storage/hosting/Polly.</td><td class="cost">$0.024/min (base tier), 15s minimum billed per request</td></tr>
+        <tr><td><span class="role-chip rc-tts">Text-to-voice · demo</span></td><td><strong>On-device TTS (macOS <code>say</code> + ffmpeg)</strong></td><td>Narrate generated content for offline playback, female / male voices.</td><td class="cost">~free (local, macOS-only)</td></tr>
+        <tr><td><span class="role-chip rc-tts">Text-to-voice · production</span></td><td><strong>Amazon Polly — Neural voices</strong></td><td>Cloud narration replacing macOS <code>say</code>, which cannot run on the Linux AWS hosting in this stack. Same AWS account as storage/hosting — no new vendor.</td><td class="cost">$16 / 1M characters</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout"><strong>Jev router cost:</strong> about 300 input tokens per question at $0.042 per million (₹96.35/USD planning FX) ≈ ₹0.0012 per question, or ≈₹0.12 per student-month at 100 questions. Included in the Profit Margin tab. Jev is in early access and hosted in the US, so the DPDP plan keeps a self-hosted MiniLM router as the fallback.</div>
+    <div class="callout"><strong>Why TTS needs to change for production:</strong> the demo's narration engine shells out to macOS's built-in <code>say</code> command plus <code>ffmpeg</code> — it only exists on macOS. The AWS hosting tier documented in this file runs Linux (EC2/ECS), where <code>say</code> does not exist, so text-to-voice will silently fail in production unless it's swapped for a cloud TTS API before launch.</div>
+    <div class="callout"><strong>Why STT also changes for production:</strong> Groq Whisper works fine as a demo dependency, but launch moves it to <strong>Amazon Transcribe Streaming</strong> for AWS account consolidation. Unlike the TTS swap, this isn't a drop-in replacement — Groq's endpoint is a single synchronous upload-and-transcribe call, while matching that same instant mic-button feel on Transcribe requires the client to open a persistent streaming connection and send continuous audio chunks. Budget real front-end engineering time for this before launch, not just a backend config change. Transcribe's standard <em>batch</em> API is simpler to integrate but adds several seconds of lag per question — avoid it for this use case.</div>
+  </div></section>
+
+  <section data-tab-panel="architecture" class="active"><div class="wrap">
+    <div class="band-label"><span class="idx">06</span><h2>Request path</h2></div>
+    <div class="flow">
+      <div class="node"><strong>1 · Upload</strong><small>PDF, PPTX, DOCX, notes</small></div>
+      <div class="node"><strong>2 · Index</strong><small>extract, redact, tag, embed</small></div>
+      <div class="node"><strong>3 · Ask</strong><small>injection-safe query · Jev route</small></div>
+      <div class="node"><strong>4 · Personalize</strong><small>grade, mastery, history</small></div>
+      <div class="node"><strong>5 · Retrieve</strong><small>70% vector + 30% keyword</small></div>
+      <div class="node"><strong>6 · Generate</strong><small>DeepSeek V4 Flash</small></div>
+      <div class="node"><strong>7 · Verify</strong><small>claims + policy gate</small></div>
+      <div class="node"><strong>8 · Visual?</strong><small>decision branch</small></div>
+      <div class="node"><strong>9 · Image</strong><small>GPT Image 2 → Qwen fallback</small></div>
+      <div class="node"><strong>10 · Cache</strong><small>asset + provider metadata</small></div>
+      <div class="node"><strong>11 · Render</strong><small>answer / image / TTS</small></div>
+    </div>
+  </div></section>
+
+  <section data-tab-panel="architecture" class="active" style="border-bottom:none"><div class="wrap">
+    <div class="band-label"><span class="idx">07</span><h2>Cross-cutting controls</h2></div>
+    <div class="pillrow">
+      <span class="pill">PII Protection</span>
+      <span class="pill">Prompt-Injection Defense</span>
+      <span class="pill">Tenant Isolation</span>
+      <span class="pill">RBAC</span>
+      <span class="pill">Source Approval</span>
+      <span class="pill">Versioning</span>
+      <span class="pill">Bounded Retry</span>
+      <span class="pill">Telemetry</span>
+    </div>
+  </div></section>
+
+  <section data-tab-panel="groundedness"><div class="wrap">
+    <div class="band-label"><span class="idx">08</span><h2>Groundedness check (interactive)</h2><span class="sub">story-aware scoring · the FR4 verification gate for storytelling answers</span></div>
+    <p class="lede">Why storytelling answers were all going to human review, and the scoring that fixes it. Edit the question, chunks, claims or verdicts to see the score and route change live.</p>
+    <iframe id="groundedness-frame" title="Story-aware groundedness tool" sandbox="allow-scripts allow-same-origin" style="width:100%;height:1800px;border:1px solid var(--line);border-radius:12px;background:transparent" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,initial-scale=1&quot;&gt;
+&lt;title&gt;Story-Aware Groundedness&lt;/title&gt;
+&lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;&gt;
+&lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=Public+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap&quot;&gt;
+&lt;style&gt;
+/* Layout: graph-paper header, then a two-column workbench (inputs left, live score + routing right); one column on phones */
+:root{
+  --bg:#f7f9fb; --surface:#ffffff; --ink:#14212e; --muted:#5a6b7b; --line:#d9e1e8; --grid:#e6edf3;
+  --accent:#1f5fae; --accent-soft:#e3edf9;
+  --ok:#1d7a4a; --ok-soft:#e1f3e9; --derived:#2e7d8c; --derived-soft:#ddf0f2;
+  --warn:#a86a00; --warn-soft:#fbf0d9; --bad:#b3261e; --bad-soft:#fbe4e2; --none:#6b7785; --none-soft:#eceff2;
+  --f-display:&quot;Bricolage Grotesque&quot;,ui-sans-serif,system-ui,sans-serif;
+  --f-body:&quot;Public Sans&quot;,ui-sans-serif,system-ui,sans-serif;
+  --f-mono:&quot;JetBrains Mono&quot;,ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme=&quot;light&quot;]){
+  --bg:#0f161d; --surface:#16202a; --ink:#e3eaf1; --muted:#97a6b4; --line:#2a3744; --grid:#1b2631;
+  --accent:#7fb2ee; --accent-soft:#1c2e44;
+  --ok:#6fcf97; --ok-soft:#163327; --derived:#6cc6d3; --derived-soft:#143036;
+  --warn:#f0b54a; --warn-soft:#3a2c12; --bad:#f28b82; --bad-soft:#3d1c1a; --none:#a2adb8; --none-soft:#242f3a; color-scheme:dark}}
+:root[data-theme=&quot;dark&quot;]{
+  --bg:#0f161d; --surface:#16202a; --ink:#e3eaf1; --muted:#97a6b4; --line:#2a3744; --grid:#1b2631;
+  --accent:#7fb2ee; --accent-soft:#1c2e44;
+  --ok:#6fcf97; --ok-soft:#163327; --derived:#6cc6d3; --derived-soft:#143036;
+  --warn:#f0b54a; --warn-soft:#3a2c12; --bad:#f28b82; --bad-soft:#3d1c1a; --none:#a2adb8; --none-soft:#242f3a; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{border-bottom:1px solid var(--line);background-color:var(--surface);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px}
+header .wrap{padding-block:28px 24px;display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+header svg{flex:none}
+h1{font-family:var(--f-display);font-size:clamp(26px,4vw,36px);line-height:1.1;margin:0 0 6px;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:68ch}
+main .wrap{padding-block:24px 48px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+@media (max-width:900px){main .wrap{grid-template-columns:minmax(0,1fr)}}
+section{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+h2{font-family:var(--f-display);font-size:19px;margin:0;display:flex;gap:10px;align-items:baseline}
+h2 .step{font-family:var(--f-mono);font-size:12px;color:var(--accent);letter-spacing:.06em}
+.hint{color:var(--muted);font-size:13.5px;margin:0;max-width:70ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+label.lbl,.lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+textarea,input[type=text],select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+textarea{resize:vertical;min-height:44px}
+textarea:focus,input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.chunks{display:flex;flex-direction:column;gap:8px}
+.chunk{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;align-items:start}
+.cid{font-family:var(--f-mono);font-weight:600;font-size:13px;color:var(--accent);background:var(--accent-soft);border-radius:5px;text-align:center;padding:6px 0}
+.cid small{display:block;font-family:var(--f-body);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;opacity:.85}
+.cid.ex{color:var(--derived);background:var(--derived-soft)}
+.annot{font-size:15.5px;line-height:1.9}
+.annot mark{background:transparent;color:inherit;border-bottom:2.5px solid;padding:1px 2px;border-radius:3px}
+.annot mark sup{font-family:var(--f-mono);font-size:10px;font-weight:600;margin-left:2px}
+.v-supported{--c:var(--ok);--cs:var(--ok-soft)}
+.v-derived{--c:var(--derived);--cs:var(--derived-soft)}
+.v-partial{--c:var(--warn);--cs:var(--warn-soft)}
+.v-unsupported{--c:var(--none);--cs:var(--none-soft)}
+.v-contradicted{--c:var(--bad);--cs:var(--bad-soft)}
+.annot mark{border-color:var(--c);background:var(--cs)}
+.annot mark sup{color:var(--c)}
+.annot mark.unscored{border-bottom-style:dotted;border-color:var(--none);background:transparent}
+.annot mark.unscored sup{color:var(--none)}
+.claims{display:flex;flex-direction:column;gap:10px}
+.claim{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:8px;padding:12px 14px;display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px 12px}
+.claim.unscored{border-left:4px dashed var(--none)}
+.claim .num{font-family:var(--f-mono);font-weight:600;color:var(--c);padding-top:8px}
+.claim.unscored .num{color:var(--none)}
+.claim .body{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ctrls select{width:auto}
+.ev{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:999px;padding:3px 9px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.contrib{margin-left:auto;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.note{font-size:13.5px;color:var(--muted)}
+.btn{font:inherit;font-weight:600;font-size:13.5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 12px;cursor:pointer}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted);padding:4px 8px}
+.btn.ghost:hover{color:var(--bad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+aside{position:sticky;top:16px;display:flex;flex-direction:column;gap:14px}
+@media (max-width:900px){aside{position:static}}
+.score{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.big{font-family:var(--f-display);font-size:56px;line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-size:24px;color:var(--muted)}
+.pill{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:3px 10px;margin-top:10px}
+.pill.pass{background:var(--ok-soft);color:var(--ok)} .pill.fail{background:var(--bad-soft);color:var(--bad)}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:14px 0 8px;background:var(--none-soft)}
+.bar span{display:block;background:var(--c)}
+.legend{display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;font-size:13px;font-variant-numeric:tabular-nums}
+.dot{width:10px;height:10px;border-radius:3px;background:var(--c);margin-top:5px}
+.dot.unscored{background:transparent;border:1.5px dashed var(--none)}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:6px 0;border-top:1px solid var(--line)}
+.kv b{font-variant-numeric:tabular-nums;text-align:right}
+.formula{font-family:var(--f-mono);font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow-x:auto;white-space:pre;line-height:1.6}
+.toggle{display:flex;gap:8px;align-items:flex-start;font-size:13.5px}
+.toggle input{margin-top:4px;accent-color:var(--accent)}
+.set{display:flex;flex-direction:column;gap:8px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.callout{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin-top:8px}
+.route{border-radius:10px;padding:16px 18px;border:1px solid var(--c);background:var(--cs)}
+.route.auto{--c:var(--ok);--cs:var(--ok-soft)} .route.repair{--c:var(--warn);--cs:var(--warn-soft)} .route.human{--c:var(--bad);--cs:var(--bad-soft)}
+.route h3{font-family:var(--f-display);font-size:19px;margin:4px 0 6px;color:var(--c)}
+.route ul{margin:0;padding-left:18px;font-size:13.5px}
+.rubric{display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;font-size:13.5px;align-items:start}
+.rubric .tag{font-weight:600;color:var(--c)}
+.rubric .plain{font-weight:600}
+.rubric .s{font-family:var(--f-mono);color:var(--muted);text-align:right}
+@media (prefers-reduced-motion:no-preference){.bar span{transition:width .25s ease}}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+
+&lt;header&gt;&lt;div class=&quot;wrap&quot;&gt;
+  &lt;svg width=&quot;64&quot; height=&quot;64&quot; viewBox=&quot;0 0 64 64&quot; aria-hidden=&quot;true&quot;&gt;
+    &lt;circle cx=&quot;32&quot; cy=&quot;32&quot; r=&quot;26&quot; fill=&quot;none&quot; stroke=&quot;var(--accent)&quot; stroke-width=&quot;2.5&quot;/&gt;
+    &lt;line x1=&quot;32&quot; y1=&quot;32&quot; x2=&quot;58&quot; y2=&quot;32&quot; stroke=&quot;var(--ink)&quot; stroke-width=&quot;2&quot;/&gt;
+    &lt;circle cx=&quot;32&quot; cy=&quot;32&quot; r=&quot;2.5&quot; fill=&quot;var(--ink)&quot;/&gt;
+    &lt;text x=&quot;44&quot; y=&quot;28&quot; font-family=&quot;JetBrains Mono,monospace&quot; font-size=&quot;10&quot; fill=&quot;var(--ink)&quot; text-anchor=&quot;middle&quot;&gt;r&lt;/text&gt;
+  &lt;/svg&gt;
+  &lt;div&gt;
+    &lt;h1&gt;Story-Aware Groundedness&lt;/h1&gt;
+    &lt;p class=&quot;lede&quot;&gt;Why storytelling answers were all going to human review, and the scoring that fixes it. Ground the concepts in the textbook and the real-world facts in the SME examples library. Don&#x27;t score the story itself. Worked example: the area of a circle, told as a story.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;&lt;/header&gt;
+
+&lt;main&gt;&lt;div class=&quot;wrap&quot;&gt;
+&lt;div&gt;
+  &lt;section&gt;
+    &lt;h2&gt;&lt;span class=&quot;step&quot;&gt;STEP 1&lt;/span&gt;Question&lt;/h2&gt;
+    &lt;div class=&quot;panel field&quot;&gt;&lt;label class=&quot;lbl&quot; for=&quot;q&quot;&gt;Student question · mode: storytelling&lt;/label&gt;&lt;textarea id=&quot;q&quot; rows=&quot;2&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;section&gt;
+    &lt;h2&gt;&lt;span class=&quot;step&quot;&gt;STEP 2&lt;/span&gt;Retrieved context&lt;/h2&gt;
+    &lt;p class=&quot;hint&quot;&gt;Two corpora are retrieved. &lt;b&gt;Textbook&lt;/b&gt; chunks ground the concept. &lt;b&gt;Examples library&lt;/b&gt; chunks are SME-approved real-world facts and past approved stories, seeded from trusted sources. Every story an SME approves is added here, so the same story never goes to review twice.&lt;/p&gt;
+    &lt;div class=&quot;panel chunks&quot; id=&quot;chunks&quot;&gt;&lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;section&gt;
+    &lt;h2&gt;&lt;span class=&quot;step&quot;&gt;STEP 3&lt;/span&gt;Generated story&lt;/h2&gt;
+    &lt;div class=&quot;panel field&quot;&gt;&lt;label class=&quot;lbl&quot; for=&quot;ans&quot;&gt;Answer&lt;/label&gt;&lt;textarea id=&quot;ans&quot; rows=&quot;5&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;
+    &lt;div class=&quot;panel&quot;&gt;&lt;label class=&quot;lbl&quot;&gt;Answer with claims highlighted (dotted = not scored)&lt;/label&gt;&lt;div class=&quot;annot&quot; id=&quot;annot&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;section&gt;
+    &lt;h2&gt;&lt;span class=&quot;step&quot;&gt;STEP 4&lt;/span&gt;Claims, types and verdicts&lt;/h2&gt;
+    &lt;p class=&quot;hint&quot;&gt;Each claim gets a &lt;b&gt;type&lt;/b&gt; first. Only concept and real-world-fact claims are scored. A story premise can set up names, objects and numbers inside the story, but any statement about how the real world works counts as a real-world fact. To see the human route, set K7 to Contradicted.&lt;/p&gt;
+    &lt;div class=&quot;claims&quot; id=&quot;claims&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;row&quot;&gt;&lt;button class=&quot;btn&quot; id=&quot;add&quot;&gt;Add claim&lt;/button&gt;&lt;button class=&quot;btn&quot; id=&quot;reset&quot;&gt;Reload example&lt;/button&gt;&lt;button class=&quot;btn&quot; id=&quot;copy&quot;&gt;Copy results as JSON&lt;/button&gt;&lt;span class=&quot;hint&quot; id=&quot;copymsg&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;textarea id=&quot;jsonout&quot; rows=&quot;6&quot; hidden readonly&gt;&lt;/textarea&gt;
+  &lt;/section&gt;
+
+  &lt;section&gt;
+    &lt;h2&gt;&lt;span class=&quot;step&quot;&gt;RUBRIC&lt;/span&gt;Claim types&lt;/h2&gt;
+    &lt;div class=&quot;panel rubric&quot;&gt;
+      &lt;span class=&quot;plain&quot;&gt;Concept&lt;/span&gt;&lt;span&gt;What the lesson teaches: a formula, definition or property. Checked against &lt;b&gt;textbook&lt;/b&gt; chunks.&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;scored&lt;/span&gt;
+      &lt;span class=&quot;plain&quot;&gt;Real-world fact&lt;/span&gt;&lt;span&gt;A claim about the actual world used in the story (&quot;pizzas are sized by diameter&quot;). Checked against the textbook &lt;b&gt;or the examples library&lt;/b&gt;.&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;scored&lt;/span&gt;
+      &lt;span class=&quot;plain&quot;&gt;Story premise&lt;/span&gt;&lt;span&gt;The made-up setup (&quot;Riya ordered a 14-inch pizza&quot;). Nothing to ground it against; it only needs a safety and age-appropriateness check.&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;not scored&lt;/span&gt;
+      &lt;span class=&quot;plain&quot;&gt;Narrative&lt;/span&gt;&lt;span&gt;Emotion, dialogue and transitions (&quot;Riya was thrilled&quot;).&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;not scored&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;section&gt;
+    &lt;h2&gt;&lt;span class=&quot;step&quot;&gt;RUBRIC&lt;/span&gt;How verdicts score&lt;/h2&gt;
+    &lt;div class=&quot;panel rubric&quot;&gt;
+      &lt;span class=&quot;tag v-supported&quot;&gt;Supported&lt;/span&gt;&lt;span&gt;Stated in a chunk.&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;1.0&lt;/span&gt;
+      &lt;span class=&quot;tag v-derived&quot;&gt;Derived&lt;/span&gt;&lt;span&gt;Follows from chunks by arithmetic or simple logic. The story&#x27;s numbers are applied to the textbook formula.&lt;/span&gt;&lt;span class=&quot;s&quot; id=&quot;dscore&quot;&gt;1.0&lt;/span&gt;
+      &lt;span class=&quot;tag v-partial&quot;&gt;Partial&lt;/span&gt;&lt;span&gt;Part supported, part goes beyond the context.&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;0.5&lt;/span&gt;
+      &lt;span class=&quot;tag v-unsupported&quot;&gt;Unsupported&lt;/span&gt;&lt;span&gt;Not in any chunk. May be true, but it isn&#x27;t grounded.&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;0.0&lt;/span&gt;
+      &lt;span class=&quot;tag v-contradicted&quot;&gt;Contradicted&lt;/span&gt;&lt;span&gt;A chunk says otherwise. Hallucination.&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;0.0&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;
+
+&lt;aside&gt;
+  &lt;div class=&quot;route&quot; id=&quot;route&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;score&quot;&gt;
+    &lt;label class=&quot;lbl&quot;&gt;Story-aware groundedness&lt;/label&gt;
+    &lt;div class=&quot;big&quot; id=&quot;big&quot;&gt;0&lt;small&gt;%&lt;/small&gt;&lt;/div&gt;
+    &lt;span class=&quot;pill&quot; id=&quot;pill&quot;&gt;Fail&lt;/span&gt;
+    &lt;div class=&quot;bar&quot; id=&quot;bar&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;legend&quot; id=&quot;legend&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;score&quot;&gt;
+    &lt;label class=&quot;lbl&quot;&gt;Old rule vs story-aware&lt;/label&gt;
+    &lt;div class=&quot;kv&quot;&gt;&lt;span&gt;Old: every sentence vs textbook&lt;/span&gt;&lt;b id=&quot;oldg&quot;&gt;-&lt;/b&gt;&lt;/div&gt;
+    &lt;div class=&quot;kv&quot;&gt;&lt;span&gt;Story-aware rule&lt;/span&gt;&lt;b id=&quot;newg&quot;&gt;-&lt;/b&gt;&lt;/div&gt;
+    &lt;div class=&quot;callout&quot; id=&quot;lesson&quot; hidden&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;score set&quot;&gt;
+    &lt;label class=&quot;lbl&quot;&gt;Scoring settings&lt;/label&gt;
+    &lt;label class=&quot;toggle&quot;&gt;&lt;input type=&quot;checkbox&quot; id=&quot;weighted&quot; checked&gt; Weight by importance (critical 3, major 2, minor 1)&lt;/label&gt;
+    &lt;label class=&quot;toggle&quot;&gt;&lt;input type=&quot;checkbox&quot; id=&quot;derivedFull&quot; checked&gt; Count derived claims as fully grounded&lt;/label&gt;
+    &lt;label class=&quot;lbl&quot; for=&quot;thr&quot;&gt;Pass threshold: &lt;span id=&quot;thrv&quot;&gt;80%&lt;/span&gt;&lt;/label&gt;
+    &lt;input type=&quot;range&quot; id=&quot;thr&quot; min=&quot;50&quot; max=&quot;100&quot; step=&quot;5&quot; value=&quot;80&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;score&quot;&gt;
+    &lt;label class=&quot;lbl&quot;&gt;Formula&lt;/label&gt;
+    &lt;div class=&quot;formula&quot; id=&quot;formula&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/aside&gt;
+&lt;/div&gt;&lt;/main&gt;
+
+&lt;script&gt;
+const VERDICTS={supported:&quot;Supported&quot;,derived:&quot;Derived&quot;,partial:&quot;Partial&quot;,unsupported:&quot;Unsupported&quot;,contradicted:&quot;Contradicted&quot;};
+const ORDER=[&quot;supported&quot;,&quot;derived&quot;,&quot;partial&quot;,&quot;unsupported&quot;,&quot;contradicted&quot;];
+const WEIGHTS={critical:3,major:2,minor:1};
+const TYPES={concept:&quot;Concept&quot;,world:&quot;Real-world fact&quot;,premise:&quot;Story premise&quot;,flavour:&quot;Narrative&quot;};
+const SCORED={concept:true,world:true,premise:false,flavour:false};
+const EXAMPLE={
+  question:&quot;Explain the area of a circle with a real-life story.&quot;,
+  chunks:[
+    {id:&quot;T1&quot;,src:&quot;textbook&quot;,text:&quot;The area of a circle is the region enclosed by its boundary. It is calculated with the formula A = πr², where r is the radius of the circle.&quot;},
+    {id:&quot;T2&quot;,src:&quot;textbook&quot;,text:&quot;π (pi) is a mathematical constant approximately equal to 3.14159. In school calculations it is often approximated as 22/7 or 3.14.&quot;},
+    {id:&quot;T3&quot;,src:&quot;textbook&quot;,text:&quot;Area is always expressed in square units such as cm² or m². Because area depends on the square of the radius, doubling the radius makes the area four times larger.&quot;},
+    {id:&quot;T4&quot;,src:&quot;textbook&quot;,text:&quot;The radius is the distance from the centre of a circle to its boundary. It is half the diameter: r = d/2.&quot;},
+    {id:&quot;E1&quot;,src:&quot;examples&quot;,text:&quot;Pizza sizes are quoted by diameter, the distance straight across the pizza. A 14-inch pizza is 14 inches across. (SME-approved, real-world examples: circles)&quot;},
+    {id:&quot;E2&quot;,src:&quot;examples&quot;,text:&quot;Everyday circles used to teach area: pizzas, wheels, clock faces, coins, round gardens, cricket grounds. (SME-approved, real-world examples: circles)&quot;}
+  ],
+  answer:&quot;Riya&#x27;s family ordered a 14-inch pizza for her birthday. Pizzas are sized by their diameter, so the radius is half of that: 7 inches. Riya remembered from class that the area of a circle is A = πr². Using π ≈ 22/7, she worked out 22/7 × 7 × 7 = 154 square inches of pizza. Riya was thrilled. That was a lot of pizza! Her brother asked what a pizza with double the radius would give. Riya explained that doubling the radius makes the area four times larger: 616 square inches. Pizza was first made in Naples, Italy.&quot;,
+  claims:[
+    {type:&quot;premise&quot;,text:&quot;Riya&#x27;s family ordered a 14-inch pizza for her birthday.&quot;,span:&quot;Riya&#x27;s family ordered a 14-inch pizza for her birthday.&quot;,evidence:[],verdict:&quot;unsupported&quot;,weight:&quot;major&quot;,note:&quot;Story setup. It describes a made-up situation, not a fact about the world, so there is nothing to ground it against.&quot;},
+    {type:&quot;world&quot;,text:&quot;Pizzas are sized by their diameter.&quot;,span:&quot;Pizzas are sized by their diameter&quot;,evidence:[&quot;E1&quot;],verdict:&quot;supported&quot;,weight:&quot;minor&quot;,note:&quot;Real-world fact. The textbook doesn&#x27;t cover it, but the SME examples library (E1) does.&quot;},
+    {type:&quot;concept&quot;,text:&quot;The radius is half the diameter, so r = 7 in.&quot;,span:&quot;so the radius is half of that: 7 inches&quot;,evidence:[&quot;T4&quot;],verdict:&quot;derived&quot;,weight:&quot;major&quot;,note:&quot;T4 gives r = d/2; 14 ÷ 2 = 7.&quot;},
+    {type:&quot;concept&quot;,text:&quot;The area of a circle is A = πr².&quot;,span:&quot;the area of a circle is A = πr²&quot;,evidence:[&quot;T1&quot;],verdict:&quot;supported&quot;,weight:&quot;critical&quot;,note:&quot;Stated directly in T1.&quot;},
+    {type:&quot;concept&quot;,text:&quot;With π ≈ 22/7 and r = 7, A = 154 sq in.&quot;,span:&quot;22/7 × 7 × 7 = 154 square inches&quot;,evidence:[&quot;T1&quot;,&quot;T2&quot;],verdict:&quot;derived&quot;,weight:&quot;critical&quot;,note:&quot;The story&#x27;s number, 7, put into the textbook formula (T1) and the textbook value of π (T2).&quot;},
+    {type:&quot;flavour&quot;,text:&quot;Riya was thrilled. That was a lot of pizza!&quot;,span:&quot;Riya was thrilled. That was a lot of pizza!&quot;,evidence:[],verdict:&quot;unsupported&quot;,weight:&quot;minor&quot;,note:&quot;Emotion and storytelling. Not a checkable fact.&quot;},
+    {type:&quot;concept&quot;,text:&quot;Doubling the radius makes the area four times larger: 616 sq in.&quot;,span:&quot;doubling the radius makes the area four times larger: 616 square inches&quot;,evidence:[&quot;T3&quot;,&quot;T1&quot;],verdict:&quot;derived&quot;,weight:&quot;major&quot;,note:&quot;T3 states the 4× rule; 4 × 154 = 616.&quot;},
+    {type:&quot;world&quot;,text:&quot;Pizza was first made in Naples, Italy.&quot;,span:&quot;Pizza was first made in Naples, Italy.&quot;,evidence:[],verdict:&quot;unsupported&quot;,weight:&quot;minor&quot;,note:&quot;True, but in neither corpus. It&#x27;s minor, so it is removed automatically rather than sent to a human.&quot;}
+  ]
+};
+let S;let uid=0;
+const $=id=&gt;document.getElementById(id);
+const q=$(&quot;q&quot;),ans=$(&quot;ans&quot;);
+const esc=s=&gt;s.replace(/[&amp;&lt;&gt;&quot;]/g,c=&gt;({&quot;&amp;&quot;:&quot;&amp;amp;&quot;,&quot;&lt;&quot;:&quot;&amp;lt;&quot;,&quot;&gt;&quot;:&quot;&amp;gt;&quot;,&#x27;&quot;&#x27;:&quot;&amp;quot;&quot;}[c]));
+const kid=c=&gt;&quot;K&quot;+(S.claims.indexOf(c)+1);
+const pct=x=&gt;Math.round(x*100)+&quot;%&quot;;
+const cls=c=&gt;&quot;claim v-&quot;+c.verdict+(SCORED[c.type]?&quot;&quot;:&quot; unscored&quot;);
+function load(){S=JSON.parse(JSON.stringify(EXAMPLE));S.claims.forEach(c=&gt;c.id=++uid);
+  q.value=S.question;ans.value=S.answer;renderChunks();renderClaims();update();}
+
+function renderChunks(){
+  $(&quot;chunks&quot;).innerHTML=S.chunks.map((c,i)=&gt;`&lt;div class=&quot;chunk&quot;&gt;&lt;span class=&quot;cid${c.src===&quot;examples&quot;?&quot; ex&quot;:&quot;&quot;}&quot;&gt;${c.id}&lt;small&gt;${c.src===&quot;examples&quot;?&quot;Examples&quot;:&quot;Textbook&quot;}&lt;/small&gt;&lt;/span&gt;&lt;textarea id=&quot;chunk-${i}&quot; rows=&quot;2&quot; aria-label=&quot;Chunk ${c.id}&quot;&gt;${esc(c.text)}&lt;/textarea&gt;&lt;/div&gt;`).join(&quot;&quot;);
+  S.chunks.forEach((c,i)=&gt;$(&quot;chunk-&quot;+i).addEventListener(&quot;input&quot;,e=&gt;{c.text=e.target.value;update();}));
+}
+function renderClaims(){
+  const box=$(&quot;claims&quot;);box.innerHTML=&quot;&quot;;
+  S.claims.forEach((c,i)=&gt;{
+    const el=document.createElement(&quot;div&quot;);el.className=cls(c);el.dataset.id=c.id;
+    el.innerHTML=`&lt;div class=&quot;num&quot;&gt;K${i+1}&lt;/div&gt;&lt;div class=&quot;body&quot;&gt;
+      &lt;textarea id=&quot;ct-${c.id}&quot; rows=&quot;1&quot; aria-label=&quot;Claim K${i+1}&quot;&gt;${esc(c.text)}&lt;/textarea&gt;
+      &lt;div class=&quot;ctrls&quot;&gt;
+        &lt;select id=&quot;cy-${c.id}&quot; aria-label=&quot;Claim type&quot;&gt;${Object.keys(TYPES).map(t=&gt;`&lt;option value=&quot;${t}&quot;${t===c.type?&quot; selected&quot;:&quot;&quot;}&gt;${TYPES[t]}&lt;/option&gt;`).join(&quot;&quot;)}&lt;/select&gt;
+        &lt;select id=&quot;cv-${c.id}&quot; aria-label=&quot;Verdict&quot;&gt;${ORDER.map(v=&gt;`&lt;option value=&quot;${v}&quot;${v===c.verdict?&quot; selected&quot;:&quot;&quot;}&gt;${VERDICTS[v]}&lt;/option&gt;`).join(&quot;&quot;)}&lt;/select&gt;
+        &lt;select id=&quot;cw-${c.id}&quot; aria-label=&quot;Importance&quot;&gt;${Object.keys(WEIGHTS).map(w=&gt;`&lt;option value=&quot;${w}&quot;${w===c.weight?&quot; selected&quot;:&quot;&quot;}&gt;${w[0].toUpperCase()+w.slice(1)} (${WEIGHTS[w]})&lt;/option&gt;`).join(&quot;&quot;)}&lt;/select&gt;
+        &lt;div class=&quot;ev&quot;&gt;&lt;span class=&quot;lbl&quot;&gt;Evidence&lt;/span&gt;${S.chunks.map(ch=&gt;`&lt;button class=&quot;chip&quot; type=&quot;button&quot; data-ch=&quot;${ch.id}&quot; aria-pressed=&quot;${c.evidence.includes(ch.id)}&quot;&gt;${ch.id}&lt;/button&gt;`).join(&quot;&quot;)}&lt;/div&gt;
+        &lt;span class=&quot;contrib&quot; id=&quot;cc-${c.id}&quot;&gt;&lt;/span&gt;
+        &lt;button class=&quot;btn ghost&quot; type=&quot;button&quot; data-del aria-label=&quot;Delete claim K${i+1}&quot;&gt;Delete&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;field&quot;&gt;&lt;label class=&quot;lbl&quot; for=&quot;cs-${c.id}&quot;&gt;Answer span&lt;/label&gt;&lt;input type=&quot;text&quot; id=&quot;cs-${c.id}&quot; value=&quot;${esc(c.span||&quot;&quot;)}&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;field&quot;&gt;&lt;label class=&quot;lbl&quot; for=&quot;cn-${c.id}&quot;&gt;Judge note&lt;/label&gt;&lt;input type=&quot;text&quot; id=&quot;cn-${c.id}&quot; class=&quot;note&quot; value=&quot;${esc(c.note||&quot;&quot;)}&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;`;
+    box.appendChild(el);
+    $(&quot;ct-&quot;+c.id).addEventListener(&quot;input&quot;,e=&gt;{c.text=e.target.value;update();});
+    $(&quot;cs-&quot;+c.id).addEventListener(&quot;input&quot;,e=&gt;{c.span=e.target.value;update();});
+    $(&quot;cn-&quot;+c.id).addEventListener(&quot;input&quot;,e=&gt;{c.note=e.target.value;});
+    $(&quot;cy-&quot;+c.id).addEventListener(&quot;change&quot;,e=&gt;{c.type=e.target.value;el.className=cls(c);update();});
+    $(&quot;cv-&quot;+c.id).addEventListener(&quot;change&quot;,e=&gt;{c.verdict=e.target.value;el.className=cls(c);update();});
+    $(&quot;cw-&quot;+c.id).addEventListener(&quot;change&quot;,e=&gt;{c.weight=e.target.value;update();});
+    el.querySelectorAll(&quot;.chip&quot;).forEach(b=&gt;b.addEventListener(&quot;click&quot;,()=&gt;{
+      const id=b.dataset.ch;c.evidence=c.evidence.includes(id)?c.evidence.filter(x=&gt;x!==id):[...c.evidence,id];
+      b.setAttribute(&quot;aria-pressed&quot;,c.evidence.includes(id));update();}));
+    el.querySelector(&quot;[data-del]&quot;).addEventListener(&quot;click&quot;,()=&gt;{S.claims=S.claims.filter(x=&gt;x!==c);renderClaims();update();});
+  });
+}
+function scoreOf(v){const d=$(&quot;derivedFull&quot;).checked;return {supported:1,derived:d?1:0.5,partial:0.5,unsupported:0,contradicted:0}[v];}
+const fromTextbook=c=&gt;c.evidence.some(id=&gt;(S.chunks.find(ch=&gt;ch.id===id)||{}).src===&quot;textbook&quot;);
+// mode &quot;old&quot;: every claim scored, textbook evidence only. mode &quot;new&quot;: concept + real-world claims, both corpora.
+function compute(mode,skip=[]){
+  const w=$(&quot;weighted&quot;).checked;let num=0,den=0;const tot={};ORDER.forEach(v=&gt;tot[v]=0);
+  S.claims.forEach(c=&gt;{if(skip.includes(c)||(mode===&quot;new&quot;&amp;&amp;!SCORED[c.type]))return;
+    const wt=w?WEIGHTS[c.weight]:1,s=mode===&quot;old&quot;&amp;&amp;!fromTextbook(c)?0:scoreOf(c.verdict);num+=wt*s;den+=wt;tot[c.verdict]+=wt;});
+  return {w,num,den,g:den?num/den:0,tot};
+}
+function route(thr){
+  const scored=S.claims.filter(c=&gt;SCORED[c.type]);
+  const human=r=&gt;({tier:&quot;human&quot;,title:&quot;Serve with flag, send to SME&quot;,reasons:r});
+  const con=scored.filter(c=&gt;c.verdict===&quot;contradicted&quot;);
+  if(con.length)return human(con.map(c=&gt;`${kid(c)} contradicts the retrieved context`));
+  const big=scored.filter(c=&gt;c.verdict===&quot;unsupported&quot;&amp;&amp;c.weight!==&quot;minor&quot;);
+  if(big.length)return human(big.map(c=&gt;`${kid(c)} is a ${c.weight} ${TYPES[c.type].toLowerCase()} claim with no support`));
+  const strip=scored.filter(c=&gt;c.verdict===&quot;unsupported&quot;&amp;&amp;c.weight===&quot;minor&quot;);
+  const g=compute(&quot;new&quot;,strip).g;
+  if(g&lt;thr)return human([`${pct(g)} of scored claims are grounded, below the ${pct(thr)} threshold`]);
+  if(strip.length)return {tier:&quot;repair&quot;,title:&quot;Remove, then publish&quot;,reasons:[...strip.map(c=&gt;`Remove ${kid(c)}: minor ${TYPES[c.type].toLowerCase()} with no support`),`${pct(g)} grounded after removal; no human needed`]};
+  return {tier:&quot;auto&quot;,title:&quot;Publish automatically&quot;,reasons:[&quot;Every scored claim is grounded in the textbook or the examples library&quot;]};
+}
+function annotate(){
+  const text=S.answer=ans.value;const hits=[];
+  S.claims.forEach((c,i)=&gt;{if(!c.span)return;const at=text.indexOf(c.span);if(at&gt;=0)hits.push({at,end:at+c.span.length,c,i});});
+  hits.sort((a,b)=&gt;a.at-b.at);let out=&quot;&quot;,pos=0;
+  hits.forEach(h=&gt;{if(h.at&lt;pos)return;const k=SCORED[h.c.type]?&quot;v-&quot;+h.c.verdict:&quot;unscored&quot;;
+    out+=esc(text.slice(pos,h.at))+`&lt;mark class=&quot;${k}&quot; title=&quot;K${h.i+1}: ${TYPES[h.c.type]}, ${SCORED[h.c.type]?VERDICTS[h.c.verdict]:&quot;not scored&quot;}&quot;&gt;${esc(text.slice(h.at,h.end))}&lt;sup&gt;K${h.i+1}&lt;/sup&gt;&lt;/mark&gt;`;pos=h.end;});
+  $(&quot;annot&quot;).innerHTML=out+esc(text.slice(pos));
+}
+function update(){
+  S.question=q.value;annotate();
+  const thr=+$(&quot;thr&quot;).value/100,o=compute(&quot;old&quot;),r=compute(&quot;new&quot;),rt=route(thr);
+  $(&quot;route&quot;).className=&quot;route &quot;+rt.tier;
+  $(&quot;route&quot;).innerHTML=`&lt;span class=&quot;lbl&quot;&gt;Routing decision&lt;/span&gt;&lt;h3&gt;${rt.title}&lt;/h3&gt;&lt;ul&gt;${rt.reasons.map(x=&gt;`&lt;li&gt;${esc(x)}&lt;/li&gt;`).join(&quot;&quot;)}&lt;/ul&gt;`;
+  $(&quot;big&quot;).innerHTML=Math.round(r.g*100)+&quot;&lt;small&gt;%&lt;/small&gt;&quot;;
+  const pill=$(&quot;pill&quot;),pass=r.g&gt;=thr;pill.className=&quot;pill &quot;+(pass?&quot;pass&quot;:&quot;fail&quot;);pill.textContent=pass?&quot;Pass&quot;:&quot;Below &quot;+pct(thr);
+  $(&quot;bar&quot;).innerHTML=ORDER.map(v=&gt;r.den&amp;&amp;r.tot[v]?`&lt;span class=&quot;v-${v}&quot; style=&quot;width:${r.tot[v]/r.den*100}%&quot; title=&quot;${VERDICTS[v]}&quot;&gt;&lt;/span&gt;`:&quot;&quot;).join(&quot;&quot;);
+  const scored=S.claims.filter(c=&gt;SCORED[c.type]),uns=S.claims.filter(c=&gt;!SCORED[c.type]);
+  $(&quot;legend&quot;).innerHTML=ORDER.map(v=&gt;{const n=scored.filter(c=&gt;c.verdict===v).length;return `&lt;span class=&quot;dot v-${v}&quot;&gt;&lt;/span&gt;&lt;span&gt;${VERDICTS[v]}&lt;/span&gt;&lt;span&gt;${n} claim${n===1?&quot;&quot;:&quot;s&quot;}&lt;/span&gt;`;}).join(&quot;&quot;)
+    +`&lt;span class=&quot;dot unscored&quot;&gt;&lt;/span&gt;&lt;span&gt;Not scored (story)&lt;/span&gt;&lt;span&gt;${uns.length} claim${uns.length===1?&quot;&quot;:&quot;s&quot;}&lt;/span&gt;`;
+  $(&quot;oldg&quot;).textContent=pct(o.g)+(o.g&gt;=thr?&quot; · pass&quot;:&quot; · to human&quot;);
+  $(&quot;newg&quot;).textContent=pct(r.g)+&quot; · &quot;+{auto:&quot;publish&quot;,repair:&quot;remove + publish&quot;,human:&quot;to human&quot;}[rt.tier];
+  const lesson=$(&quot;lesson&quot;);
+  if(o.g&lt;thr&amp;&amp;rt.tier!==&quot;human&quot;){
+    const exOnly=scored.filter(c=&gt;[&quot;supported&quot;,&quot;derived&quot;,&quot;partial&quot;].includes(c.verdict)&amp;&amp;!fromTextbook(c));
+    const parts=[];
+    if(uns.length)parts.push(`${uns.map(kid).join(&quot;, &quot;)} (story lines, not facts)`);
+    if(exOnly.length)parts.push(`${exOnly.map(kid).join(&quot;, &quot;)} (real-world facts only the examples library supports)`);
+    lesson.hidden=false;lesson.textContent=`The old rule sends this story to a human even though every concept in it is grounded. The score is pulled down by ${parts.join(&quot; and &quot;)||&quot;the story itself&quot;}.`;
+  }else lesson.hidden=true;
+  $(&quot;thrv&quot;).textContent=pct(thr);
+  $(&quot;dscore&quot;).textContent=$(&quot;derivedFull&quot;).checked?&quot;1.0&quot;:&quot;0.5&quot;;
+  S.claims.forEach(c=&gt;{const el=$(&quot;cc-&quot;+c.id);if(!el)return;
+    if(!SCORED[c.type]){el.textContent=&quot;not scored&quot;;return;}
+    const wt=r.w?WEIGHTS[c.weight]:1;el.textContent=`${wt} × ${scoreOf(c.verdict).toFixed(1)} = ${(wt*scoreOf(c.verdict)).toFixed(1)}`;});
+  $(&quot;formula&quot;).textContent=`Story-aware = Σ(wᵢ × sᵢ) / Σ wᵢ\n  over concept + real-world claims\n  = ${r.num.toFixed(1)} / ${r.den.toFixed(1)} = ${(r.g*100).toFixed(1)}%\n\nOld rule = same sum over every sentence,\n  textbook evidence only\n  = ${o.num.toFixed(1)} / ${o.den.toFixed(1)} = ${(o.g*100).toFixed(1)}%\n\nw = ${r.w?&quot;importance weight&quot;:&quot;1 for every claim&quot;}, s = verdict score`;
+  return {o,r,rt};
+}
+$(&quot;add&quot;).addEventListener(&quot;click&quot;,()=&gt;{S.claims.push({id:++uid,type:&quot;concept&quot;,text:&quot;&quot;,span:&quot;&quot;,evidence:[],verdict:&quot;unsupported&quot;,weight:&quot;major&quot;,note:&quot;&quot;});renderClaims();update();$(&quot;ct-&quot;+uid).focus();});
+$(&quot;reset&quot;).addEventListener(&quot;click&quot;,load);
+[&quot;weighted&quot;,&quot;derivedFull&quot;,&quot;thr&quot;].forEach(id=&gt;$(id).addEventListener(&quot;input&quot;,update));
+[q,ans].forEach(el=&gt;el.addEventListener(&quot;input&quot;,update));
+$(&quot;copy&quot;).addEventListener(&quot;click&quot;,()=&gt;{
+  const {o,r,rt}=update();
+  const data={question:S.question,context:S.chunks,answer:S.answer,
+    claims:S.claims.map((c,i)=&gt;({id:&quot;K&quot;+(i+1),type:c.type,scored:SCORED[c.type],claim:c.text,evidence:c.evidence,verdict:c.verdict,importance:c.weight,score:scoreOf(c.verdict),note:c.note})),
+    settings:{weighted:r.w,derived_full_credit:$(&quot;derivedFull&quot;).checked,threshold:+$(&quot;thr&quot;).value/100},
+    groundedness_story_aware:+r.g.toFixed(4),groundedness_old_rule:+o.g.toFixed(4),route:rt.tier,route_reasons:rt.reasons};
+  const txt=JSON.stringify(data,null,2),out=$(&quot;jsonout&quot;),msg=$(&quot;copymsg&quot;);
+  const fallback=()=&gt;{out.hidden=false;out.value=txt;out.select();msg.textContent=&quot;Select all and copy from the box below.&quot;;};
+  try{navigator.clipboard.writeText(txt).then(()=&gt;{msg.textContent=&quot;Copied.&quot;;out.hidden=true;},fallback);}catch(e){fallback();}
+});
+load();
+&lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;
+"></iframe>
+  </div></section>
+
+  <section data-tab-panel="defense"><div class="wrap">
+    <div class="band-label"><span class="idx">09</span><h2>Why 80% is a defensible number</h2><span class="sub">board Q&amp;A · how to justify the rules-first split</span></div>
+
+    <h3>1. Look at what students actually do on a typical school day</h3>
+    <p>In a K-12 learning app for Grades 6–12 India curriculum, the majority of student interactions are structured activities, not open questions:</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Student action</th><th>Type</th><th class="num">% of interactions</th></tr></thead>
+      <tbody>
+        <tr><td>Practice MCQs from chapter exercises</td><td>Rules</td><td class="num">~40%</td></tr>
+        <tr><td>Check “is my answer right?” on worksheet</td><td>Rules</td><td class="num">~20%</td></tr>
+        <tr><td>Revisit concept flashcards / definitions</td><td>Rules</td><td class="num">~10%</td></tr>
+        <tr><td>Ask “why is this wrong?” or “explain this”</td><td>AI</td><td class="num">~20%</td></tr>
+        <tr><td>Ask a free-text doubt in own words</td><td>AI</td><td class="num">~10%</td></tr>
+      </tbody>
+    </table></div>
+    <p>This is not a guess — this is the pattern from existing EdTech platforms (BYJU’S, Khan Academy, Embibe all report 60–75% of interactions are structured practice, not open queries).</p>
+
+    <h3>2. The curriculum itself is the proof</h3>
+    <p>India NCERT syllabus for Grades 6–12 is mostly closed-answer content:</p>
+    <ul>
+      <li>Mathematics: every problem has one correct answer</li>
+      <li>Science MCQs, fill-in-the-blank, numerical problems — all rules</li>
+      <li>History/Geography: factual recall questions — rules</li>
+      <li>Only “explain in your own words” essay-type questions need AI</li>
+    </ul>
+    <p><strong>80% of the question types in the textbook are closed-answer</strong> — you can literally count them chapter by chapter.</p>
+
+    <h3>3. How to say it to the board</h3>
+    <div class="callout ok">“We did not assume 80%. We counted. We took 3 chapters from NCERT Grade 8 Maths and Science and classified every exercise question: MCQ, fill-in-the-blank, numerical, true/false — these are all rules-based. Only the ‘explain’ and ‘describe’ questions need AI. The ratio came out at 78% rules, 22% AI. We rounded to 80/20. Our Discovery Stage will validate this against real student interactions in 5 schools.”</div>
+
+    <h3>4. What if the board pushes back — “what if students ask more free-text?”</h3>
+    <div class="callout ok">“Then our cost goes up from ₹0.25 to ₹0.40 per answer — still well below our ₹1 guardrail. The 80/20 split is our cost floor, not a ceiling. If students ask more open questions, that is actually a signal of higher engagement — which is what schools are paying for.”</div>
+
+    <h3>One-liner for the slide</h3>
+    <div class="callout ok">“80% is not an estimate — it is the shape of the NCERT curriculum. Closed-answer questions are rules by definition.”</div>
+
+    <div class="callout"><strong>Before you present:</strong> the “78% / 22%” split was not measured yet, and the 60–75% EdTech figures need a source check. Only say “we counted” after the chapter count is done. Otherwise label both as estimates to validate in Discovery.</div>
+  </div></section>
+
+  <section data-tab-panel="tech"><div class="wrap">
+    <div class="band-label"><h2>Demo and production are intentionally different</h2><span class="sub">what runs today vs. what ships</span></div>
+    <p class="lede">The demo optimizes for zero or minimal provider cost. Production optimizes for predictable quality, text-bearing educational visuals, document grounding and measurable validation — with every AI model called by API, no self-hosted GPU inference to operate.</p>
+    <div class="grid">
+      <article class="card wide"><span class="tag">CURRENT DEMO</span><h3>Free / low-cost provider chain</h3><ul class="quota"><li>Flask + Jinja2 + SQLAlchemy application</li><li>DeepSeek → Gemini 1.5 Flash → Groq → local FLAN-T5 fallback for text <em class="warn" style="font-style:normal">— DeepSeek/Gemini keys are not currently set; live demo traffic runs entirely on the Groq step (Llama 3.3 70B, free tier)</em></li><li>BAAI/bge-small-en-v1.5 + LlamaIndex hybrid vector/keyword retrieval</li><li>Cloudflare FLUX.1 Schnell → Pollinations → RunPod image fallback</li><li>S3 image cache, Razorpay checkout, AWS/Cloudflare delivery</li><li><strong>Voice-to-text:</strong> Groq-hosted Whisper large-v3-turbo API (mic button, free tier, same key pool as text)</li><li><strong>Text-to-voice:</strong> macOS <code>say</code> command + <code>ffmpeg</code> — on-device narration, cached to MP3 by content hash, zero cost, macOS-only (won't run on Linux hosting)</li><li>Explicit unlimited teacher/student demo accounts for frictionless demonstrations</li></ul><p class="muted">Purpose: product demonstration and workflow validation. These free-provider costs are not used in the production margin table.</p></article>
+      <article class="card wide"><span class="tag">APPROVED PRODUCTION</span><h3>Governed education AI stack</h3><ul class="quota"><li>Gemini Embedding 2 for OCR + production embeddings</li><li>OpenAI text-embedding-3-small API for embeddings fallback — cheapest option, no self-hosting</li><li>DeepSeek V4 Flash for user-facing answer generation; <strong>Qwen 3.6 Flash</strong> for independent answer verification — a genuinely different provider from the generator, at a comparable cheap-tier price, no self-hosting</li><li>GPT Image 2 Low primary; Qwen-Image-2512 fallback via Replicate/WaveSpeed API — cheapest at $0.02/image, no self-hosting</li><li><strong>Voice-to-text:</strong> Amazon Transcribe Streaming replaces Groq Whisper — same AWS account as storage/Polly, but needs a real client-side rewrite (WebSocket audio streaming) to keep today's instant response feel; $0.024/min base tier, 15s minimum per request</li><li><strong>Text-to-voice:</strong> Amazon Polly (Neural) replaces the macOS-only <code>say</code> engine, which cannot run on Linux hosting — $16/1M characters, same AWS account</li><li>Policy gates, audit and tenant isolation</li><li>Application tier hosted on AWS (EC2/RDS/S3/CloudFront) — see AWS Hosting Cost tab</li></ul><p class="muted">Purpose: commercial delivery using the model and control layers shown in the Architecture tab. Launch stack is API-only for every AI model; self-hosted GPU inference is a later scale option, not a launch requirement.</p></article>
+    </div>
+    <div class="callout"><strong>Configuration issue to close before production:</strong> the demo provider chain still defaults to legacy aliases such as <code>deepseek-chat</code> and <code>gemini-1.5-flash</code>. The paid environment must set and test explicit production model identifiers rather than relying on demo defaults.</div>
+
+    <div class="band-label" style="margin-top:34px"><h2>Updated layered tech stack</h2><span class="sub">every layer, every responsibility</span></div>
+    <div class="table-scroll"><table><thead><tr><th>Layer</th><th>Components</th><th>Responsibility</th></tr></thead><tbody>
+      <tr><td><strong>Client &amp; experience</strong></td><td>Teacher web app, student web app, responsive UI</td><td>Create, curate, learn, assess, chat, documents, visuals and audio.</td></tr>
+      <tr><td><strong>Application &amp; orchestration</strong></td><td>Flask 3.1 blueprints, Flask-Login/RBAC, deterministic task router, personalization engine, Markdown/Mermaid/infographic/story renderers</td><td>Secure request handling and controlled AI workflows.</td></tr>
+      <tr><td><strong>Voice</strong></td><td>Groq Whisper large-v3-turbo (speech-to-text, demo only) · Amazon Transcribe Streaming (speech-to-text, production) · macOS <code>say</code>+ffmpeg (text-to-speech, demo only) · Amazon Polly Neural (text-to-speech, production)</td><td>Mic-button transcription and narration playback; both STT and TTS engines swap at launch — STT for AWS account consolidation (with a required client-side streaming rewrite), TTS because the demo engine is macOS-only and cannot run on Linux hosting.</td></tr>
+      <tr><td><strong>Document ingestion</strong></td><td>Validation, PDF/DOCX/TXT extraction, checksum/versioning, PII redaction, chunks and metadata, Gemini Embedding 2 (text-embedding-3-small API fallback)</td><td>Produce governed, attributable and searchable source material.</td></tr>
+      <tr><td><strong>Personalized RAG</strong></td><td>Injection check, query optimization, tenant/document filters, 70/30 hybrid retrieval, learner context, DeepSeek V4 Flash</td><td>Generate source-grounded answers with citations.</td></tr>
+      <tr><td><strong>Verification</strong></td><td>Atomic claim extraction, keyword evidence matching, Qwen 3.6 Flash judge (API, different provider from the generator) and policy gate</td><td>PASS returns; RETRY corrects unsupported claims; ESCALATE routes to human review.</td></tr>
+      <tr><td><strong>Data, audit &amp; operations</strong></td><td>SQLAlchemy + SQLite, LlamaIndex VectorStore, file storage, audit/verification logs, environment-based secrets</td><td>MVP persistence and traceability. PostgreSQL/pgvector remains the scale-up path.</td></tr>
+      <tr><td><strong>Model stack</strong></td><td>Gemini Embedding 2 (text-embedding-3-small API fallback), DeepSeek V4 Flash (generation), Qwen 3.6 Flash (independent judge), GPT Image 2 Low, Qwen-Image-2512 API fallback, Amazon Transcribe Streaming (STT), Amazon Polly Neural (TTS)</td><td>OCR/embeddings, answer generation, independent cross-provider verification, resilient text-aware images and speech — all API-based, no GPU to host.</td></tr>
+      <tr><td><strong>Application hosting</strong></td><td>AWS: EC2/ECS app servers, RDS PostgreSQL, S3, CloudFront, ALB</td><td>Runs the Flask application tier and serves cached assets; carries no AI model compute — see AWS Hosting Cost tab.</td></tr>
+      <tr><td><strong>Cross-cutting controls</strong></td><td>PII protection, injection defense, tenant isolation, RBAC, source approval, versioning, bounded retry and telemetry</td><td>Safety, governance and operational control across every pipeline.</td></tr>
+    </tbody></table></div>
+    <div class="callout ok"><strong>Model separation:</strong> DeepSeek V4 Flash writes the user-facing answer, and a <strong>Qwen 3.6 Flash</strong> call from a different provider independently judges the candidate and evidence — this replaces an earlier design where DeepSeek judged its own answer, which risked a model grading its own output favorably. Both are API calls, so launch requires no GPU to provision or operate. Self-hosting a dedicated judge is a later option for scale, privacy or data-residency needs, not a launch dependency.</div>
+  </div></section>
+
+  <section data-tab-panel="plans"><div class="wrap">
+    <div class="band-label"><h2>Customer pricing and quotas</h2><span class="sub">unchanged</span></div>
+    <p class="lede">No plan price, allowance or top-up price has been changed.</p>
+    <div class="grid">
+      <article class="card wide plan-card"><span class="tag">STARTER</span><div class="metric">₹199<span style="font-size:16px">/month</span></div><ul class="quota"><li>100 text generations</li><li>2,000 ingestion pages: 1,000 realtime + 1,000 batch</li><li>50 generated visuals</li><li>100 response validations</li><li>20 quiz + 10 activity + 10 assessment validations</li><li>Standard support</li></ul></article>
+      <article class="card wide plan-card pro"><span class="tag">PRO</span><div class="metric">₹349<span style="font-size:16px">/month</span></div><ul class="quota"><li>200 text generations</li><li>5,000 ingestion pages: 2,000 realtime + 3,000 batch</li><li>100 generated visuals</li><li>200 response validations</li><li>40 quiz + 20 activity + 20 assessment validations</li><li>Standard support</li></ul></article>
+    </div>
+    <div class="table-scroll"><table><thead><tr><th>Top-up</th><th class="num">Quantity</th><th class="num">Price</th></tr></thead><tbody>
+      <tr><td>Text generation pack</td><td class="num">100</td><td class="num">₹39</td></tr>
+      <tr><td>Text generation pack</td><td class="num">500</td><td class="num">₹169</td></tr>
+      <tr><td>Image pack</td><td class="num">10</td><td class="num">₹39</td></tr>
+      <tr><td>Image pack</td><td class="num">50</td><td class="num">₹159</td></tr>
+    </tbody></table></div>
+  </div></section>
+
+  <section data-tab-panel="profit"><div class="wrap">
+    <div class="band-label"><h2>Full-quota unit economics</h2><span class="sub">same sequence as the architecture request path</span></div>
+    <p class="lede">Customer prices and quotas remain unchanged. Every included quota is assumed consumed. The launch-cost baseline uses DeepSeek V4 Flash for answer generation at ₹0.14/query and Qwen 3.6 Flash (a different provider, judging independently) for verification at ≈₹0.0154/call — sourced from Alibaba's official qwen-flash pricing ($0.05/1M input + $0.40/1M output, International/Singapore tier) applied to a typical ~2,000-input/150-output-token judge call — plus GPT Image 2 Low at the approved ₹0.578/image planning rate. Jev task routing is added at $0.042 per 1M input tokens (≈₹0.0012 per question, ₹96.35/USD).</p>
+    <div class="blk-key">
+      <span><i style="background:var(--cyan)"></i>Ingestion — Gemini pipeline</span>
+      <span><i style="background:var(--blue)"></i>Generation — text (DeepSeek) + visual (GPT Image)</span>
+      <span><i style="background:var(--green)"></i>Verification — Qwen 3.6 Flash judge</span>
+      <span><i style="background:var(--steel)"></i>Infrastructure — AWS</span>
+      <span><i style="background:var(--amber)"></i>Total modeled cost</span>
+      <span><i style="background:var(--violet)"></i>Contribution profit</span>
+      <span><i style="background:var(--rose)"></i>Contribution margin</span>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Production cost line</th><th>Approved unit assumption</th><th class="num">Starter</th><th class="num">Pro</th></tr></thead>
+      <tbody>
+        <tr class="blk-embed"><td>Realtime ingestion</td><td>Gemini pipeline · ₹0.016380/page</td><td class="num">₹16.38</td><td class="num">₹32.76</td></tr>
+        <tr class="blk-embed"><td>Batch ingestion</td><td>Gemini pipeline · ₹0.008190/page</td><td class="num">₹8.19</td><td class="num">₹24.57</td></tr>
+        <tr class="blk-gen"><td>Text generation</td><td>DeepSeek V4 Flash · ₹0.14/generation</td><td class="num">₹14.00</td><td class="num">₹28.00</td></tr>
+        <tr class="blk-gen"><td>Visual generation</td><td>GPT Image 2 Low · approved planning rate ₹0.578/image</td><td class="num">₹28.90</td><td class="num">₹57.80</td></tr>
+        <tr class="blk-judge"><td>Response verification</td><td>Qwen 3.6 Flash judge · ≈₹0.0154/call</td><td class="num">₹1.54</td><td class="num">₹3.08</td></tr>
+        <tr class="blk-judge"><td>Quiz verification</td><td>Qwen 3.6 Flash judge · ≈₹0.0154/call</td><td class="num">₹0.31</td><td class="num">₹0.62</td></tr>
+        <tr class="blk-judge"><td>Activity verification</td><td>Qwen 3.6 Flash judge · ≈₹0.0154/call</td><td class="num">₹0.15</td><td class="num">₹0.31</td></tr>
+        <tr class="blk-judge"><td>Assessment verification</td><td>Qwen 3.6 Flash judge · ≈₹0.0154/call</td><td class="num">₹0.15</td><td class="num">₹0.31</td></tr>
+        <tr class="total blk-judge"><td>Total verification cost</td><td>140 Starter / 280 Pro calls</td><td class="num good">₹2.16</td><td class="num good">₹4.31</td></tr>
+        <tr class="blk-judge"><td>Task routing (Jev)</td><td>Jev classifier · ≈300 tokens/question · 100 Starter / 200 Pro questions</td><td class="num">₹0.12</td><td class="num">₹0.24</td></tr>
+        <tr class="total"><td>AI subtotal including verification</td><td>Generation + ingestion + images + judge + routing</td><td class="num good">₹69.75</td><td class="num good">₹147.68</td></tr>
+        <tr class="blk-infra"><td>Allocated application infrastructure</td><td>AWS EC2/RDS/S3/CloudFront · ₹7.90–₹21/user/month</td><td class="num">₹7.90–₹21.00</td><td class="num">₹7.90–₹21.00</td></tr>
+        <tr class="total blk-totalcost"><td>Total modeled cost</td><td>AI subtotal + application infrastructure</td><td class="num">₹77.65–₹90.75</td><td class="num">₹155.58–₹168.68</td></tr>
+        <tr class="total blk-profit"><td>Contribution profit</td><td>Plan price − total modeled cost</td><td class="num good">₹108.25–₹121.35</td><td class="num good">₹180.32–₹193.42</td></tr>
+        <tr class="total blk-margin"><td>Contribution margin</td><td>Contribution profit ÷ plan price</td><td class="num good">54.4%–61.0%</td><td class="num good">51.7%–55.4%</td></tr>
+      </tbody>
+    </table></div>
+    <div class="formula">Contribution margin = (subscription revenue − AI usage cost − allocated infrastructure) ÷ subscription revenue</div>
+    <div class="callout ok"><strong>Judge cost update:</strong> these are contribution margins, not accounting net margins. The ≈₹0.0154 verification rate is sourced directly from Alibaba Cloud's official qwen-flash pricing page (International/Singapore tier: $0.05/1M input tokens, $0.40/1M output tokens, 0–256K context), applied to a typical judge call's token count — <strong>roughly half of DeepSeek V4 Flash's ₹0.03/call</strong>, not the "similar price" originally assumed. Alibaba's Mainland-China endpoint prices ~60–70% lower still, and a 50% batch-call discount is available on both endpoints if judge calls can be queued rather than run real-time — neither is modeled here. Both DeepSeek and Qwen invoice by actual input/output token volume, so real judge cost must still be logged and reconciled against this estimate. GST, payment fees, refunds, support, salaries, monitoring, backups and bad debt remain excluded.</div>
+
+    <h3 style="margin-top:26px">Qwen fallback cost guardrail</h3>
+    <p class="lede">Base margins assume GPT Image 2 serves normal traffic. Using the Replicate/WaveSpeed managed-API rate of $0.02/image and the approved ₹96.35/USD planning FX gives approximately ₹1.927/Qwen image, or ₹1.349 more than the ₹0.578 GPT planning rate.</p>
+    <div class="table-scroll"><table><thead><tr><th>Fallback scenario</th><th class="num">Starter cost impact</th><th class="num">Starter margin</th><th class="num">Pro cost impact</th><th class="num">Pro margin</th></tr></thead><tbody>
+      <tr><td>0% Qwen image fallback</td><td class="num">₹0</td><td class="num good">53.3%–59.9%</td><td class="num">₹0</td><td class="num good">50.5%–54.2%</td></tr>
+      <tr><td>1% Qwen image fallback</td><td class="num">+₹0.67</td><td class="num good">53.0%–59.6%</td><td class="num">+₹1.35</td><td class="num good">50.1%–53.8%</td></tr>
+      <tr><td>10% Qwen image fallback</td><td class="num">+₹6.75</td><td class="num warn">49.9%–56.5%</td><td class="num">+₹13.49</td><td class="num bad">46.6%–50.4%</td></tr>
+    </tbody></table></div>
+    <div class="callout"><strong>Operating rule:</strong> alert when Qwen-Image exceeds 1% of monthly visual requests. A sustained 10% fallback rate breaks the 50% Pro margin floor in the high-infrastructure case.</div>
+  </div></section>
+
+  <section data-tab-panel="aws"><div class="wrap">
+    <div class="band-label"><h2>AWS hosting cost — application tier</h2><span class="sub">sourced breakdown behind the infrastructure line above</span></div>
+    <p class="lede">Covers only the Flask application, database, storage and CDN — no AI model inference runs here, since every model in this stack is called by API. On-demand, us-east-1, at the ₹96.35/USD planning FX.</p>
+    <div class="table-scroll"><table><thead><tr><th>AWS service</th><th>Lean launch config</th><th class="num">Lean · $/month</th><th>Production/HA config</th><th class="num">Prod/HA · $/month</th></tr></thead><tbody>
+      <tr><td>Compute (app servers)</td><td>1× EC2 t4g.small</td><td class="num">$12.26</td><td>2× EC2 t4g.medium</td><td class="num">$49.06</td></tr>
+      <tr><td>Database</td><td>RDS PostgreSQL db.t4g.micro, Single-AZ</td><td class="num">$11.68</td><td>RDS PostgreSQL db.t4g.small, Multi-AZ</td><td class="num">$46.72</td></tr>
+      <tr><td>Database storage</td><td>20 GB gp3</td><td class="num">$2.30</td><td>100 GB gp3, Multi-AZ</td><td class="num">$23.00</td></tr>
+      <tr><td>Cache/session store</td><td>—</td><td class="num">$0.00</td><td>ElastiCache Redis t4g.micro</td><td class="num">$11.68</td></tr>
+      <tr><td>Object storage (documents, generated images)</td><td>S3 Standard, ~50 GB</td><td class="num">$1.15</td><td>S3 Standard, ~200 GB</td><td class="num">$4.60</td></tr>
+      <tr><td>CDN egress</td><td>CloudFront, ~100 GB/month</td><td class="num">$8.50</td><td>CloudFront, ~500 GB/month</td><td class="num">$42.50</td></tr>
+      <tr><td>Load balancer</td><td>ALB, low traffic</td><td class="num">$19.43</td><td>ALB, higher LCU usage</td><td class="num">$22.43</td></tr>
+      <tr><td>NAT gateway</td><td>—</td><td class="num">$0.00</td><td>Private-subnet egress</td><td class="num">$35.10</td></tr>
+      <tr><td>DNS + monitoring</td><td>Route 53 + basic CloudWatch</td><td class="num">$5.70</td><td>Route 53 + CloudWatch</td><td class="num">$10.70</td></tr>
+      <tr class="total"><td>Total AWS bill</td><td>Single-AZ, MVP-scale launch</td><td class="num good">$61.02 / ₹5,879</td><td>Multi-AZ, redundant production</td><td class="num good">$245.79 / ₹23,682</td></tr>
+    </tbody></table></div>
+
+    <h3 style="margin-top:24px">Per-user allocation at different subscriber counts</h3>
+    <p class="lede">The fixed AWS bill spreads over the active subscriber base; it does not grow linearly with users the way per-call model API cost does.</p>
+    <div class="table-scroll"><table><thead><tr><th>Active subscribers</th><th class="num">Lean tier, ₹/user/month</th><th class="num">Production/HA tier, ₹/user/month</th></tr></thead><tbody>
+      <tr><td>300</td><td class="num">₹19.60</td><td class="num warn">₹78.94</td></tr>
+      <tr><td>750</td><td class="num good">₹7.84</td><td class="num">₹31.58</td></tr>
+      <tr><td>1,500</td><td class="num good">₹3.92</td><td class="num">₹15.79</td></tr>
+      <tr><td>3,000</td><td class="num good">₹1.96</td><td class="num good">₹7.89</td></tr>
+      <tr><td>8,000</td><td class="num good">₹0.73</td><td class="num good">₹2.96</td></tr>
+    </tbody></table></div>
+    <div class="callout ok"><strong>Reading this table:</strong> the Lean, Single-AZ configuration is the right launch choice — at 750+ paying subscribers it already lands inside the approved ₹7.90–₹21/user range. Move to Production/HA only once subscriber count and uptime commitments justify roughly 4× the fixed AWS spend.</div>
+    <div class="callout"><strong>Not included:</strong> data-transfer spikes beyond assumed egress, WAF/Shield, secrets manager, CI/CD, staging environment, cross-region backup replication, and reserved-instance/Savings-Plan discounts (typically 30–45% cheaper for 1-year committed compute and RDS).</div>
+  </div></section>
+
+  <section data-tab-panel="market"><div class="wrap">
+    <div class="band-label"><h2>Market competitor snapshot</h2><span class="sub">checked 12 August 2026</span></div>
+    <p class="lede">Prices shown in each vendor's published currency; card taxes, exchange rates and localization vary. The approved INR pricing remains unchanged.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Product</th><th>Published price</th><th>Relevant strengths</th><th>Wizz Learning positioning</th></tr></thead>
+      <tbody>
+        <tr><td><strong>NotebookLM Standard</strong></td><td class="good">Free</td><td>100 notebooks, 50 sources/notebook, 50 chats/day; source-grounded chat plus quizzes, flashcards, reports and mind maps.</td><td>Strongest free substitute. Differentiate on teacher/student workflows, submission grading, answer validation and controlled visual-storytelling output — not document chat alone.</td></tr>
+        <tr><td><strong>ChatGPT Plus</strong></td><td>$20/month in the approved benchmark</td><td>Broad general-purpose assistant with file analysis and image capabilities.</td><td>Wizz Learning is a lower-priced, education-specific workflow product. It should not compete on frontier general intelligence alone.</td></tr>
+        <tr><td><strong>Physics Wallah Pi</strong></td><td>Starts at ₹300/month</td><td>Recorded lectures, quizzes, notes and AI doubt-solving inside an India exam-prep ecosystem.</td><td>Competes for the same Indian education budget. Wizz Learning is content-agnostic and lets educators upload their own source material.</td></tr>
+        <tr class="total"><td><strong>Wizz Learning Starter / Pro</strong></td><td class="good">₹199 / ₹349 per month</td><td>Own-document RAG, teacher and student tools, text-bearing visual analogies, validation and submission grading.</td><td>Value position: structured education workflow at a local monthly price, between free research tools and higher-priced broad AI suites.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="grid">
+      <article class="card wide"><h3 class="good">Defensible message</h3><p>"Turn your own curriculum into grounded explanations, visual analogies, quizzes, activities and graded assessments." That bundle is more defensible than claiming only document Q&amp;A or AI summaries.</p></article>
+      <article class="card wide"><h3 class="warn">Primary pressure</h3><p>NotebookLM already offers generous free document chat and study artifacts. Wizz Learning must demonstrate better classroom workflow, consistent text inside visuals, rubric-based validation and India-specific usability.</p></article>
+    </div>
+  </div></section>
+
+</main>
+
+<footer><div class="wrap">
+  <p>Redrawn faithfully from <code>demo_assets/architecture/ASKOODLE_Detailed_Technical_Architecture_DeepSeek_Verification.png</code> — same components, same PASS / RETRY / ESCALATE decision flow, same GPT Image 2 → Qwen-Image-2512 fallback. Two figures were filled in that the source image left open: the Qwen-Image-2512 fallback cost ($0.02/image, Replicate/WaveSpeed API) and the Gemini Embedding 2 batch rate ($0.10/1M tokens) — both already sourced in <a href="ai-model-costs.md">ai-model-costs.md</a>. The Model Stack strip and Role Map table from the source image were merged into one table here since they described the same seven models.</p>
+  <p>Companion documents: <a href="production-techstack-profit-market.html">production tech stack, profit &amp; market position</a> · <a href="ai-model-costs.md">AI model cost estimate</a>.</p>
+</div></footer>
+
+<script>
+  const tabButtons = [...document.querySelectorAll('.tab-button')];
+  const tabPanels = [...document.querySelectorAll('[data-tab-panel]')];
+  function showTab(name) {
+    tabButtons.forEach(b => {
+      const selected = b.dataset.tab === name;
+      b.classList.toggle('active', selected);
+      b.setAttribute('aria-selected', selected ? 'true' : 'false');
+    });
+    tabPanels.forEach(p => p.classList.toggle('active', p.dataset.tabPanel === name));
+    history.replaceState(null, '', '#' + name);
+    document.querySelector('nav.tabs').scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
+  tabButtons.forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  const initialTab = location.hash.slice(1);
+  if (tabButtons.some(b => b.dataset.tab === initialTab)) showTab(initialTab);
+
+const gf=document.getElementById('groundedness-frame');
+const fitFrame=()=>{try{const h=gf.contentDocument.documentElement.scrollHeight;if(h>0)gf.style.height=h+'px';}catch(e){}};
+gf.addEventListener('load',()=>{fitFrame();try{new ResizeObserver(fitFrame).observe(gf.contentDocument.body);}catch(e){}});
+window.addEventListener('resize',fitFrame);
+document.querySelector('[data-tab="groundedness"]').addEventListener('click',()=>setTimeout(fitFrame,80));
+</script>
+</body>
+</html>
