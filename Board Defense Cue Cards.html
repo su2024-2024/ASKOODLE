@@ -1,0 +1,315 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Board Defense Cue Cards</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single-scroll cue card with sticky slide nav */
+:root {
+  --bg: #FAFAF9; --fg: #1C1917; --muted: #78716C;
+  --card: #FFFFFF; --card-border: #E7E5E4;
+  --accent: #1E2761; --accent-light: #EEF0F8;
+  --kw: #B91C1C; --kw-bg: #FEF2F2;
+  --num: #0D9488; --num-bg: #F0FDFA;
+  --metric: #7C3AED; --metric-bg: #F5F3FF;
+  --tip: #B45309; --tip-bg: #FFFBEB; --tip-border: #FDE68A;
+  --demo: #059669; --demo-bg: #ECFDF5; --demo-border: #A7F3D0;
+  --sep: #D6D3D1;
+  --slide-bg: #1E2761; --slide-fg: #FFFFFF;
+  --nav-bg: #FFFFFF; --nav-border: #E7E5E4;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1C1917;--fg:#E7E5E4;--muted:#A8A29E;
+  --card:#292524;--card-border:#44403C;
+  --accent:#93A3F8;--accent-light:#1E1B4B;
+  --kw:#FCA5A5;--kw-bg:#450A0A;
+  --num:#5EEAD4;--num-bg:#042F2E;
+  --metric:#C4B5FD;--metric-bg:#2E1065;
+  --tip:#FCD34D;--tip-bg:#451A03;--tip-border:#78350F;
+  --demo:#6EE7B7;--demo-bg:#022C22;--demo-border:#065F46;
+  --sep:#44403C;
+  --slide-bg:#312E81;--slide-fg:#E0E7FF;
+  --nav-bg:#292524;--nav-border:#44403C;
+  color-scheme:dark
+}}
+:root[data-theme="dark"]{
+  --bg:#1C1917;--fg:#E7E5E4;--muted:#A8A29E;
+  --card:#292524;--card-border:#44403C;
+  --accent:#93A3F8;--accent-light:#1E1B4B;
+  --kw:#FCA5A5;--kw-bg:#450A0A;
+  --num:#5EEAD4;--num-bg:#042F2E;
+  --metric:#C4B5FD;--metric-bg:#2E1065;
+  --tip:#FCD34D;--tip-bg:#451A03;--tip-border:#78350F;
+  --demo:#6EE7B7;--demo-bg:#022C22;--demo-border:#065F46;
+  --sep:#44403C;
+  --slide-bg:#312E81;--slide-fg:#E0E7FF;
+  --nav-bg:#292524;--nav-border:#44403C;
+  color-scheme:dark
+}
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: 'Inter', system-ui, sans-serif;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+  line-height: 1.6; max-width: 780px; margin: 0 auto;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px); z-index: 11;
+  background: var(--nav-bg);
+}
+h1 { font-size: 1.5rem; font-weight: 700; color: var(--accent); margin: 1.5rem 0 0.25rem; text-wrap: balance; }
+.subtitle { color: var(--muted); font-size: 0.8rem; margin-bottom: 1rem; }
+
+nav {
+  position: sticky; top: env(safe-area-inset-top, 0px);
+  background: var(--nav-bg); border-bottom: 1px solid var(--nav-border);
+  padding: 0.5rem 0; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding-inline: max(16px, env(safe-area-inset-left, 0px));
+  z-index: 10; overflow-x: auto; white-space: nowrap;
+  display: flex; gap: 0.35rem; scrollbar-width: none;
+}
+nav::-webkit-scrollbar { display: none; }
+nav a {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.3rem 0.65rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600;
+  text-decoration: none; color: var(--fg); background: var(--card); border: 1px solid var(--card-border);
+  flex-shrink: 0; transition: background 0.15s;
+}
+nav a:hover, nav a:focus { background: var(--accent-light); }
+nav a .sn { color: var(--num); font-family: 'JetBrains Mono', monospace; }
+
+.slide {
+  background: var(--card); border: 1px solid var(--card-border);
+  border-radius: 10px; margin-bottom: 1rem; overflow: hidden;
+}
+.slide-header {
+  background: var(--slide-bg); color: var(--slide-fg);
+  padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center;
+}
+.slide-header h2 { font-size: 0.95rem; font-weight: 700; margin: 0; }
+.slide-header .timing {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+  background: rgba(255,255,255,0.15); padding: 0.15rem 0.5rem; border-radius: 4px;
+}
+.slide-body { padding: 0.8rem 1rem; }
+.slide-body p { margin: 0 0 0.65rem; font-size: 0.85rem; }
+
+.kw { color: var(--kw); background: var(--kw-bg); padding: 0.1rem 0.3rem; border-radius: 3px; font-weight: 600; }
+.num { color: var(--num); background: var(--num-bg); padding: 0.1rem 0.3rem; border-radius: 3px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+.met { color: var(--metric); background: var(--metric-bg); padding: 0.1rem 0.3rem; border-radius: 3px; font-weight: 600; }
+
+.demo {
+  background: var(--demo-bg); border: 1px solid var(--demo-border); border-left: 3px solid var(--demo);
+  border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.85rem;
+}
+.demo-label { font-weight: 700; color: var(--demo); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+.demo p { margin: 0 0 0.5rem; }
+
+.qa { margin-top: 1.5rem; }
+.qa h2 { font-size: 1.1rem; color: var(--accent); margin-bottom: 0.5rem; }
+.qa-item { padding: 0.5rem 0; border-bottom: 1px solid var(--card-border); }
+.qa-q { font-weight: 600; font-size: 0.82rem; color: var(--accent); }
+.qa-a { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
+
+.footer { text-align: center; color: var(--muted); font-size: 0.7rem; padding: 1.5rem 0 2rem; }
+.legend { display: inline-flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
+</style>
+
+<h1>Board Defense — Cue Cards</h1>
+<p class="subtitle">Sunita's slides (3–7 + demo) &middot; Group 11 &middot; Wizz Learning &middot; 26 Oct 2026</p>
+
+<nav>
+  <a href="#s3"><span class="sn">3</span> USP</a>
+  <a href="#s4"><span class="sn">4</span> Portfolio</a>
+  <a href="#s5"><span class="sn">5</span> FR4</a>
+  <a href="#demo"><span class="sn">D</span> Demo</a>
+  <a href="#s6"><span class="sn">6</span> Discovery</a>
+  <a href="#s7"><span class="sn">7</span> Arch</a>
+  <a href="#qa"><span class="sn">Q</span> Q&amp;A</a>
+</nav>
+
+<!-- SLIDE 3 -->
+<div class="slide" id="s3">
+  <div class="slide-header">
+    <h2>Slide 3 — USP &amp; Hypotheses</h2>
+    <span class="timing">~30 s</span>
+  </div>
+  <div class="slide-body">
+    <p>Our USP is <span class="kw">trust</span>: every answer is checked against the school's own <span class="kw">textbook</span>, with a <span class="kw">citation</span>, before a learner sees it.</p>
+
+    <p>Three hypotheses. <span class="met">H1</span> — correct: checked answers match teachers <span class="num">&ge;95%</span>. <span class="met">H2</span> — learns: test scores lift <span class="num">&ge;15%</span>. <span class="met">H3</span> — used: <span class="num">&ge;60%</span> learners use it weekly.</p>
+
+    <p>Pilot gates: <span class="met">H1</span> fails &rarr; <span class="kw">teacher copilot</span>. <span class="met">H2</span> fails &rarr; <span class="kw">redesign</span>. <span class="met">H3</span> fails &rarr; <span class="kw">pause</span>. How rules and AI work — covered in <span class="kw">architecture slide</span>.</p>
+
+  </div>
+</div>
+
+<!-- SLIDE 4 -->
+<div class="slide" id="s4">
+  <div class="slide-header">
+    <h2>Slide 4 — Portfolio Choice &amp; Market</h2>
+    <span class="timing">~50 s</span>
+  </div>
+  <div class="slide-body">
+    <p>Session 3: portfolio choice. Five product ideas in a <span class="kw">value vs difficulty</span> box.</p>
+
+    <p><strong>Top-left: strategic bet</strong> — <span class="kw">Verified Student Tutor</span>, B2B subscription. Chose this — only it produces <span class="kw">learner mastery</span>, which is what schools pay for.</p>
+
+    <p><strong>Top-right: quick win</strong> — <span class="kw">Teacher Copilot</span>. Did not drop it — our <span class="kw">costed flip option</span>. If tutor misses learning-gain target, we switch without starting over. Helps teachers plan lessons, generate stories and <span class="kw">visuals</span> for concepts by mastery level, create quizzes. <span class="kw">Teachers can judge right/wrong — students cannot.</span></p>
+
+    <p><strong>Bottom-left:</strong> rejected. Auto-grading — privacy + low willingness to pay.</p>
+
+    <p><strong>Bottom-right:</strong> not pursued. Open-web helper competes with free ChatGPT.</p>
+
+    <p>Why <span class="kw">B2B</span>? Schools <span class="kw">pay</span>, supply <span class="kw">approved curriculum</span>, collect <span class="kw">consent</span>. Consumer app fights free chatbots. Competitive: <span class="kw">ChatGPT</span> fluent but <span class="kw">unverified</span>; <span class="kw">BYJU's/Vedantu</span> aligned but expensive. Wizz = <span class="kw">verified AI + citations + school-friendly price</span>.</p>
+
+  </div>
+</div>
+
+<!-- SLIDE 5 -->
+<div class="slide" id="s5">
+  <div class="slide-header">
+    <h2>Slide 5 — Critical Requirement (FR4)</h2>
+    <span class="timing">~75 s</span>
+  </div>
+  <div class="slide-body">
+    <p><span class="kw">FR4</span>: <span class="kw">no AI answer reaches a learner unless every claim is verified</span>. Good call = correct delivered or wrong caught. <span class="kw">Bad call</span> = wrong answer shown as verified — must prevent.</p>
+
+    <p><strong>Example:</strong> "What is the area of a circle?" AI responds with pizza story — <span class="num">&pi;r&sup2;</span>, radius 7, area 154 sq cm.</p>
+
+    <p><strong>Four steps, each automatic:</strong></p>
+    <p>1. <span class="kw">Break</span> — split into individual facts<br>
+    2. <span class="kw">Find</span> — textbook line for each fact<br>
+    3. <span class="kw">Score</span> — separate AI judge, <span class="num">0 to 1</span>, below <span class="num">0.8</span> fails<br>
+    4. <span class="kw">Decide</span> — all pass &rarr; deliver with citation; any fail &rarr; retry once; still failing &rarr; <span class="kw">teacher expert 24h</span></p>
+
+    <p>Once approved, <span class="kw">saved permanently</span> — same question never needs a human twice.</p>
+
+    <p><strong>Five metrics:</strong> <span class="met">correct &ge;95%</span> &middot; <span class="met">bad calls &lt;2%</span> &middot; <span class="met">&kappa; &ge;0.70</span> &middot; <span class="met">escalation &le;2% &rarr; &le;0.7%</span> &middot; <span class="met">latency &lt;4s</span></p>
+
+    <p><strong>Bridge:</strong> "Before I move to discovery, let me show you the <span class="kw">scoring model running live</span>."</p>
+
+  </div>
+</div>
+
+<!-- DEMO -->
+<div class="slide" id="demo">
+  <div class="slide-header" style="background: var(--demo);">
+    <h2>Live Demo — Groundedness Scoring</h2>
+    <span class="timing">~30 s</span>
+  </div>
+  <div class="slide-body">
+    <div class="demo">
+      <div class="demo-label">Open HTML &rarr; Groundedness Tab</div>
+
+      <p>"Let me show you this working. I am opening our <span class="kw">scoring tool</span>."</p>
+
+      <p>"I type: <em>'What is the area of a circle? Explain with a real-life example.'</em>"</p>
+
+      <p>"AI generates a pizza story — <span class="num">&pi;r&sup2;</span>, radius 7, area 154 sq cm."</p>
+
+      <p>"System <span class="kw">breaks into claims</span>. For each, finds <span class="kw">matching textbook line</span>. <span class="kw">Qwen judge</span> scores each — <span class="num">0 to 1</span>, below <span class="num">0.8</span> fails."</p>
+
+      <p>"Formula claim &rarr; <span class="num">0.95</span>, matched NCERT. Unit 'square inches' &rarr; <span class="num">0.4</span>, textbook says centimetres — <span class="kw">fails</span>."</p>
+
+      <p>"System <span class="kw">retries</span> with correct unit &rarr; all pass &rarr; <span class="kw">Verified badge</span> + textbook citation."</p>
+
+      <p>"This is <span class="kw">FR4 in action</span> — no answer reaches the student until every fact is checked. Now let me move to <span class="kw">staging the rollout</span>."</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SLIDE 6 -->
+<div class="slide" id="s6">
+  <div class="slide-header">
+    <h2>Slide 6 — Discovery &amp; Delivery</h2>
+    <span class="timing">~65 s</span>
+  </div>
+  <div class="slide-body">
+    <p>Three stages like a <span class="kw">driving licence</span> — learner's permit, supervised driving, full licence. Don't move to next until we pass a test set in advance.</p>
+
+    <p><strong>Stage 1 — Discovery.</strong> <span class="num">Jan to March</span>, one quarter. Two questions: does the <span class="kw">verification checker</span> work on real curriculum? Can we answer for <span class="num">under &#8377;1</span>? Piloted in <span class="num">2 schools</span>. H1 or cost fail &rarr; stop. <span class="num">&#8377;0.86 Cr</span> is the entire exposure — <span class="kw">cheapest failure we could design</span>.</p>
+
+    <p><strong>Stage 2 — Pilot.</strong> <span class="num">April to July</span>, <span class="num">10 schools</span>, aligned with <span class="kw">academic year</span>. Tests: <span class="met">&ge;60% learners weekly</span>; <span class="met">&lt;15% corrections</span>; sustained <span class="num">4 weeks</span>. <span class="num">&lt;40%</span> usage &rarr; pause. Measure against <span class="kw">term tests — PT1, Term 1</span>.</p>
+
+    <p><strong>Stage 3 — Production.</strong> <span class="num">Aug 2027+</span>. Score <span class="met">&ge;15% above</span> matched classes. <span class="met">&le;0.7%</span> human escalation. <span class="kw">Voice Hindi + English</span> same verification.</p>
+
+  </div>
+</div>
+
+<!-- SLIDE 7 -->
+<div class="slide" id="s7">
+  <div class="slide-header">
+    <h2>Slide 7 — Architecture</h2>
+    <span class="timing">~60 s</span>
+  </div>
+  <div class="slide-body">
+    <p>Three layers, each doing one job.</p>
+
+    <p><strong>Foundation:</strong> <span class="kw">governed knowledge and data</span> — the CORE. Built before any school rollout. Only <span class="kw">school-approved curriculum</span>. Each school's data <span class="kw">completely separate</span>. Progress stored as <span class="kw">learning codes, not names</span>. Data stays in <span class="kw">India</span>.</p>
+
+    <p><strong>User asks a question:</strong> <span class="kw">API gateway</span> &rarr; auth + rate limiting. <span class="kw">Task router</span> (Jev model) decides: <span class="kw">deterministic or non-deterministic</span>?</p>
+
+    <p><strong>Deterministic (<span class="num">~80%</span>):</strong> <span class="kw">Rules engine</span>. NLP text similarity on <span class="kw">our own servers</span>, not paid API. Similarity <span class="num">&ge;85%</span> &rarr; answer from DB — <span class="kw">pre-verified, zero AI cost</span>. NLP handles paraphrasing — "describe" = "explain".</p>
+
+    <p><strong>Non-deterministic (<span class="num">~20%</span>):</strong> AI path &rarr; <span class="kw">hybrid retrieval</span> &rarr; context builder (<span class="kw">versioned prompts</span>) &rarr; <span class="kw">DeepSeek</span> generates.</p>
+
+    <p><strong>Verification gate (FR4):</strong> <span class="kw">Jev classifies</span> claims &rarr; match evidence &rarr; <span class="kw">Qwen judge</span> scores &rarr; policy gate: <span class="kw">pass / retry / escalate</span> &rarr; output guard adds <span class="kw">Verified</span> or <span class="kw">Pending Review</span> badge.</p>
+
+    <p>Central AI team: <span class="kw">weekly tests</span>, <span class="kw">pinned model versions</span>, changes on <span class="num">1 school</span> first, <span class="kw">rollback &lt;1h</span>.</p>
+
+    <p><em>[Hand over to Sri for Slide 8]</em></p>
+
+  </div>
+</div>
+
+<!-- Q&A -->
+<div class="qa" id="qa">
+  <h2>Q&amp;A Quick Reference</h2>
+
+  <div class="qa-item">
+    <div class="qa-q">How did you calculate &#8377;0.86 Cr?</div>
+    <div class="qa-a">Show <span class="kw">Pilot Cost tab</span> in HTML: engineering &#8377;54L, AI variable &#8377;10L, infra &#8377;10L, onboarding &#8377;8L, ops &#8377;4L.</div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-q">Per-user cost breakdown?</div>
+    <div class="qa-a">Show <span class="kw">Profit Margin tab</span>: Gemini &#8377;16.38+&#8377;8.19, DeepSeek &#8377;14, GPT Image &#8377;28.90, Qwen &#8377;2.16, Jev &#8377;0.12, infra &#8377;7.90-21. Total <span class="num">&#8377;77-91/user/month</span>.</div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-q">Why 80-20 split?</div>
+    <div class="qa-a">Most K-12 questions are variations of same concepts. <span class="kw">NLP handles paraphrasing</span>. Only truly new questions need AI generation.</div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-q">Why not below Grade 5?</div>
+    <div class="qa-a">Difficult for younger students to use independently. Start with 6-12, expand later.</div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-q">How do you measure 15% improvement?</div>
+    <div class="qa-a"><span class="kw">Baseline test</span> &rarr; one chapter with product (Section A) vs without (Section B) &rarr; <span class="kw">endline test</span>. Aligned with PT1/Term 1.</div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-q">What about SME costs?</div>
+    <div class="qa-a">2 SMEs ~&#8377;15-20K each = &#8377;30-40K/month. Adds ~&#8377;10/student. In pilot cost, not per-user unit economics. If pushed: <span class="kw">"noted, we will update."</span></div>
+  </div>
+  <div class="qa-item">
+    <div class="qa-q">Sovereign AI / multilingual?</div>
+    <div class="qa-a">Future plan — <span class="kw">Bhashini/Sarvam</span>, 10 Indian languages, multimedia. Infrastructure stays in India. Mention <strong>ONLY if asked</strong>.</div>
+  </div>
+  <div class="qa-item" style="border-bottom: none;">
+    <div class="qa-q">If professor pushes back on anything?</div>
+    <div class="qa-a"><span class="kw" style="font-size: 0.85rem;">"That is a great point, sir. Noted, we will update it."</span> — NEVER argue.</div>
+  </div>
+</div>
+
+<div class="footer">
+  Group 11 &middot; Wizz Learning &middot; ASKOODLE &middot; Board Defense 26 Oct 2026<br>
+  <div class="legend">
+    <span><span class="kw">keyword</span></span>
+    <span><span class="num">number</span></span>
+    <span><span class="met">metric</span></span>
+  </div>
+</div>
+
+</body></html>
