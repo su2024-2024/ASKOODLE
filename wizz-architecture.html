@@ -171,6 +171,7 @@
   <button class="tab-button" data-tab="profit">Profit Margin</button>
   <button class="tab-button" data-tab="aws">AWS Hosting Cost</button>
   <button class="tab-button" data-tab="market">Competitors</button>
+  <button class="tab-button" data-tab="metrics">Verification Metrics</button>
 </div></nav>
 
 <main>
@@ -1659,6 +1660,66 @@ load();
       <article class="card wide"><h3 class="good">Defensible message</h3><p>"Turn your own curriculum into grounded explanations, visual analogies, quizzes, activities and graded assessments." That bundle is more defensible than claiming only document Q&amp;A or AI summaries.</p></article>
       <article class="card wide"><h3 class="warn">Primary pressure</h3><p>NotebookLM already offers generous free document chat and study artifacts. Wizz Learning must demonstrate better classroom workflow, consistent text inside visuals, rubric-based validation and India-specific usability.</p></article>
     </div>
+  </div></section>
+
+  <section data-tab-panel="metrics"><div class="wrap">
+    <div class="band-label"><span class="idx">09</span><h2>Verification Metrics — How We Know the Checker Works</h2><span class="sub">Each number measured against teachers' own labels on a 200-question gold set</span></div>
+
+    <p class="lede">The verification gate (FR4) is only as trustworthy as its measured performance. These five metrics are tested on a 200-question gold set where teachers have already labelled every claim as correct or incorrect. Each metric has a hard threshold — below it, we act, not discuss.</p>
+
+    <div class="grid-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:24px 0">
+
+      <article class="card" style="text-align:center">
+        <div style="font-size:2.8rem;font-weight:800;color:var(--teal);line-height:1.1">≥95%</div>
+        <h3 style="margin:8px 0 4px">Passed facts teachers confirm</h3>
+        <p>Of all the facts the AI judge <strong>passed as correct</strong>, at least 95% must actually be correct when teachers check them independently. This is the system's precision — how much you can trust a "Verified" badge.</p>
+        <div style="margin-top:12px;padding:8px 12px;background:var(--amber-bg,#fff8e6);border-radius:6px;font-size:0.82rem">
+          <strong style="color:var(--red,#c0392b)">→ Below 90%:</strong> pivot to teacher copilot (stop student-facing AI answers entirely)
+        </div>
+      </article>
+
+      <article class="card" style="text-align:center">
+        <div style="font-size:2.8rem;font-weight:800;color:var(--red,#c0392b);line-height:1.1">&lt;2%</div>
+        <h3 style="margin:8px 0 4px">Bad calls: wrong shown as verified</h3>
+        <p>The most dangerous failure — a <strong>wrong answer displayed with a "Verified" badge</strong>. The student trusts it, the teacher doesn't see it. This is the false-positive rate of the verification gate and must stay under 2%.</p>
+        <div style="margin-top:12px;padding:8px 12px;background:var(--amber-bg,#fff8e6);border-radius:6px;font-size:0.82rem">
+          <strong style="color:var(--red,#c0392b)">→ Above 2%:</strong> pause the pilot immediately
+        </div>
+      </article>
+
+      <article class="card" style="text-align:center">
+        <div style="font-size:2.8rem;font-weight:800;color:var(--teal);line-height:1.1">κ ≥0.70</div>
+        <h3 style="margin:8px 0 4px">Judge–teacher agreement (Cohen's kappa)</h3>
+        <p><strong>Cohen's kappa</strong> measures how much the AI judge and human teachers agree <em>beyond chance</em>. A κ of 0.70 means "substantial agreement" — the AI judge and teachers disagree only on genuinely ambiguous claims, not on clear facts.</p>
+        <div style="margin-top:12px;padding:8px 12px;background:var(--amber-bg,#fff8e6);border-radius:6px;font-size:0.82rem">
+          <strong style="color:var(--red,#c0392b)">→ Below 0.70:</strong> re-tune the 0.8 confidence cut-off in the policy gate
+        </div>
+      </article>
+
+      <article class="card" style="text-align:center">
+        <div style="font-size:2.8rem;font-weight:800;color:var(--teal);line-height:1.1">≤2%</div>
+        <h3 style="margin:8px 0 4px">Escalation rate (sent to a human)</h3>
+        <p>The share of all answers that the policy gate <strong>escalates to a human SME</strong> for review. At launch, ≤2% is acceptable. Before scaling to more schools, this must drop to <strong>≤0.7%</strong> — otherwise the human review queue becomes a bottleneck.</p>
+        <div style="margin-top:12px;padding:8px 12px;background:var(--amber-bg,#fff8e6);border-radius:6px;font-size:0.82rem">
+          <strong style="color:var(--red,#c0392b)">→ Above 0.7% at scale:</strong> do not expand to more schools
+        </div>
+      </article>
+
+      <article class="card" style="text-align:center">
+        <div style="font-size:2.8rem;font-weight:800;color:var(--teal);line-height:1.1">&lt;4 s</div>
+        <h3 style="margin:8px 0 4px">Latency (95th percentile)</h3>
+        <p>95 out of every 100 verified answers must reach the student in <strong>under 4 seconds</strong> — including retrieval, generation, claim extraction, evidence matching, and the judge verdict. On low-bandwidth Android, anything slower breaks the learning flow.</p>
+        <div style="margin-top:12px;padding:8px 12px;background:var(--amber-bg,#fff8e6);border-radius:6px;font-size:0.82rem">
+          <strong style="color:var(--red,#c0392b)">→ Slower:</strong> fix before release (optimize retrieval, reduce prompt size, or cache)
+        </div>
+      </article>
+
+    </div>
+
+    <div class="callout" style="margin-top:16px">
+      <strong>Why these five and not more?</strong> Each metric maps to a specific actor's trust: <em>≥95% and &lt;2%</em> protect the <strong>student</strong> (correct answers, no false "Verified" badges); <em>κ ≥0.70</em> proves to the <strong>school board</strong> that the AI judge is as reliable as a teacher; <em>≤2% escalation</em> shows <strong>operations</strong> the system doesn't drown the SME queue; and <em>&lt;4 s latency</em> tells <strong>product</strong> the experience isn't broken. Together they form the go/no-go checklist before every scale decision.
+    </div>
+
   </div></section>
 
 </main>
